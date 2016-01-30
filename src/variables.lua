@@ -3,10 +3,10 @@
 pigeonFeedByRadius = true
 pigeonFeedRadius = 150
 
-pigeonSpeed = 50;
+pigeonSpeed = 50
 
 foodMaximum = 100
-fooPerFeed = 10
+foodPerFeed = 10
 foodDecrement = 0.1
 
 pigeonInfluencePerClick = 20

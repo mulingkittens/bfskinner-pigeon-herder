@@ -118,7 +118,6 @@ function love.draw(dt)
     love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
 
     --draw the feed radius if showing
-    print(feedRadiusShowingTimer)
     if feedRadiusShowingTimer > 0 then
         love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
     end
@@ -156,19 +155,17 @@ function love.mousepressed(x, y, button, istouch)
         local pigeonCentreX = pigeon.x + (pigeonWidth / 2)
         local pigeonCentreY = pigeon.y + (pigeonHeight / 2)
         
-        print(pigeonFeedByRadius)
-        
         if pigeonFeedByRadius then
         
             -- check if the pigeon is within the feed range
             local distanceFromMouse = ((mouseX-pigeonCentreX)^2+(mouseY-pigeonCentreY)^2)^0.5
-            print(distanceFromMouse)
-                
+
             if distanceFromMouse <= pigeonFeedRadius then
             
                 -- feed the pigeon
                 pigeon:feed()
                 
+                -- add the feed radius display
                 feedRadiusShowingTimer = 0.2
                 feedRadiusX = mouseX - 75
                 feedRadiusY = mouseY - 75
@@ -177,6 +174,7 @@ function love.mousepressed(x, y, button, istouch)
         
         else
         
+            -- check if the pigeon is under the cusor
             if (mouseX > pigeonLeft) and (mouseX < pigeonRight) and
                 (mouseY > pigeonTop) and (mouseX < pigeonBottom) then
                

@@ -45,9 +45,11 @@ return function(xPos, yPos)
     update = function(self, dt)
         
         -- if the pigeon has died return imediately
-        if self.currentState == state.alive then     
+        if self.currentState ~= state.alive then     
             return
         end
+        
+        debug.debug()
         
         -- decrement food level
         self.foodLevel = self.foodLevel - 1

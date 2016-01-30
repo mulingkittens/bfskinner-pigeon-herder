@@ -1,3 +1,5 @@
+require("src/variables")
+
 Game = {
   -- Screen configuration
   Screen = {
@@ -64,7 +66,7 @@ function love.load(args)
 
     -- initialise pigeons
     local pigeons = Game.Pigeons
-    for i = 1, 5 do
+    for i = 1, 20 do
       pigeons[#pigeons + 1] = PigeonFactory(i * 50, i * 50)
     end
 end
@@ -118,6 +120,8 @@ function love.mousepressed(x, y, button, istouch)
         local pigeonBottom = pigeon.y + pigeonHeight
         local pigeonCentreX = pigeon.x + (pigeonWidth / 2)
         local pigeonCentreY = pigeon.y + (pigeonHeight / 2)
+        
+        print(pigeonFeedByRadius)
         
         if pigeonFeedByRadius then
         

@@ -9,6 +9,9 @@ pigeonFeedRadiusDisplayTime = 0.2
 
 pigeonSpeed = 50
 
+pigeonActionTime = 1
+pigeonActionVariance = 0.5
+
 pigeonFoodMaximum = 100
 pigeonFoodPerFeed = 10
 pigeonFoodDecrement = 0.1

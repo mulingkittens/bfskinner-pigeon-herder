@@ -1,6 +1,6 @@
 require("src/variables")
 
-PigeonFactoryFactory = require("src/pigeon")
+PigeonFactory = require("src/pigeon")
 PenFactory = pcall(require, "src/pen") -- TODO
 --ObjectFactory = require("src/objects")
 LoadLevel = require("src/loader")
@@ -14,7 +14,6 @@ Pen = require("src/levels/pen")
 
 local level = LevelManager()
 --Wrap the Pigeon Factory in a constructor tat should allow it to be added to the sprite batch
-PigeonFactory = PigeonFactoryFactory(level)
 
 Game = {
   -- Screen configuration
@@ -42,6 +41,14 @@ Game = {
     Barrier = love.graphics.newImage('assets/barrier.png'),
     Goal = love.graphics.newImage('assets/goal.png')
   },
+  
+    -- Level state
+    LevelState = {
+        timeRunning = 0,
+        totalPigeons = 10,
+        deadPigeons = 0,
+        capturedPigeons = 0
+    },
 
   -- Pigeons
   Pigeons = {},
@@ -166,6 +173,11 @@ function love.update(dt)
     -- Update pigeons
     for i, pigeon in ipairs(Game.Pigeons) do
         pigeon:update(dt)
+        
+        -- If pigeon is dead remove him from the game
+        if not pigeon:isAlive() then
+            table.remove(Game.Pigeons, i)
+        end
     end
 
     -- Decrement the feed radius timer

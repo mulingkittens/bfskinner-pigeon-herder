@@ -183,4 +183,5 @@ function love.mousepressed(x, y, button, istouch)
   -- pigeons[#pigeons + 1] = PigeonFactory(
   --   x - pigeonWidth / 2,
   --  y - Game.Sprites.Pigeon:getHeight() / 2)
+  
 end

@@ -112,8 +112,11 @@ return function(x, y)
         end
         
         -- decrement all actions in the influence table
-        for action in ipairs(self.influenceTable) do
+        for action in pairs(self.influenceTable) do
             self.influenceTable[action] = self.influenceTable[action] - pigeonInfluenceDecrement
+            if self.influenceTable[action] <= 0 then
+                self.influenceTable[action] = 0
+            end
         end
 
         -- run the current action (unless it fails)
@@ -150,6 +153,7 @@ return function(x, y)
             local action_time = string.format('%0.1f', self.currentActionTime)
             love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
             love.graphics.print("Food:" .. self.foodLevel, self.x -10, self.y - 30)
+            love.graphics.print("Influence:" .. self.influenceTable[Action.move_down_right], self.x -10, self.y - 40)
             love.graphics.setColor(r, g, b, a)
         end
         if Game.Debug.draw_bounding_boxes then
@@ -200,12 +204,16 @@ return function(x, y)
         local highestInfluenceAction = 0
     
         -- iterate through the influence table and store the action of the highest value
-        for action, influence in ipairs(self.influenceTable) do
+        for action, influence in pairs(self.influenceTable) do
+            print(ActionNames[action], " : ", influence)
             if influence > highestInfluence then
                 highestInfluence = influence
                 highestInfluenceAction = action
             end
         end
+        
+        print(ActionNames[highestInfluenceAction])
+        print(highestInfluence)
         
         -- if the highest value is greater than the upper threshold then return that action
         if highestInfluence >= pigeonInfluenceUpperThreshold then

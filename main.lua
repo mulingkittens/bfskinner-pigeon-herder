@@ -31,6 +31,13 @@ Game = {
     Barrier = love.graphics.newImage('assets/barrier.png'),
     Goal = love.graphics.newImage('assets/goal.png')
   },
+  
+    -- Level state
+    LevelState = {
+        totalPigeons = 10,
+        deadPigeons = 0,
+        capturedPigeons = 0
+    },
 
   -- Pigeons
   Pigeons = {},

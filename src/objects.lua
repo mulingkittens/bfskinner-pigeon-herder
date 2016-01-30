@@ -38,7 +38,7 @@ create_pen = function(x, y, numPigeons)
             local spawnLocationAvailable = true
             
             for i, pigeon in ipairs(Game.Pigeons) do
-                pigeonRect = Rect(pigeon.x, pigeon.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+                local pigeonRect = Rect(pigeon.x, pigeon.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
                 if spawnRect:intersects(pigeonRect) then
                     spawnLocationAvailable = false
                 end
@@ -135,6 +135,27 @@ create_goal = function(x, y)
             return Rect(0, 0, 1, 1)
         
         end,
+
+        capture_pigeon = function(self)
+           
+            local goalRect = Rect(self.x, self.y, 150, 150)
+            
+            for i, pigeon in ipairs(Game.Pigeons) do
+                
+                local pigeonRect = Rect(pigeon.x, pigeon.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+                
+                if goalRect:intersects(pigeonRect) then
+                    
+                    Game.LevelState.capturedPigeons = Game.LevelState.capturedPigeons + 1
+                    
+                    -- Remove pigeon from the game
+                    table.remove(Game.Pigeons, i)
+                    
+                end
+                
+            end
+            
+        end
         
     }, {
 

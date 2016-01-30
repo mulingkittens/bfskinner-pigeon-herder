@@ -6,7 +6,6 @@ local state = {
     dead = 2
 }
 
-
 local function create_move_action(dx, dy)
     return function(self, dt)
         new_x = self.x + dx * pigeonSpeed * dt

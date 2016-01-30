@@ -1,6 +1,16 @@
 require("src/util")
 pigeonSpeed = 50;
 
+foodMaximum = 100
+fooPerFeed = 10
+foodDecrement = 0.1
+
+pigeonInfluencePerClick = 20
+pigeonInfluenceMax = 100
+pigeonInfluenceUpperThreshold = 75
+pigeonInfluenceLowerThreshold = 25
+pigeonInfluenceDecrement = 1
+
 state = {
     alive = 0,
     dying = 1,
@@ -73,9 +83,7 @@ return function(x, y)
     x = x,
     y = y,
     foodLevel = 0,
-    foodMaximum = 100,
     influenceTable = {},
-    influenceThreshold = 50,
     
     initialise = function(self, dt)
         -- bounding box
@@ -96,7 +104,15 @@ return function(x, y)
         end
         
         -- decrement food level
-        self.foodLevel = self.foodLevel - 1
+        self.foodLevel = self.foodLevel - foodDecrement
+        if self.foodLevel <= 0 then
+            self.foodLevel = 0
+        end
+        
+        -- decrement all actions in the influence table
+        for action in ipairs(self.influenceTable) do
+            self.influenceTable[action] = self.influenceTable[action] - pigeonInfluenceDecrement
+        end
 
         -- run the current action (unless it fails)
         local failed = not self:action(Game, dt)
@@ -121,6 +137,7 @@ return function(x, y)
             local action_name = ActionNames[self.action]
             local action_time = string.format('%0.1f', self.currentActionTime)
             love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
+            love.graphics.print("Food:" .. self.foodLevel, self.x -10, self.y - 30)
             love.graphics.setColor(r, g, b, a)
         end
         if Game.Debug.draw_bounding_boxes then
@@ -131,16 +148,21 @@ return function(x, y)
         end
     end,
     
-    feed = function(self, value)
+    feed = function(self)
         
         -- increment the influence table for the current action
-        self.influenceTable[self.currentAction] = self.influenceTable[self.currentAction] + 20
+        self.influenceTable[self.action] = self.influenceTable[self.action] + pigeonInfluencePerClick
+        
+        -- if the influence level exceeds the maximum set it to the maximum
+        if self.influenceTable[self.action] > pigeonInfluenceMax then
+            self.infleunceTable[self.action] = pigeonInfuenceMax
+        end
         
         -- increment the food level
-        self.foodLevel = self.foodLevel + value
+        self.foodLevel = self.foodLevel + fooPerFeed
         
         -- if the food level exceeds the maximum, kill the pigeon
-        if foodLevel > fooMaximum then
+        if self.foodLevel > foodMaximum then
             self.currentState = state.dead
         end
     
@@ -157,13 +179,10 @@ return function(x, y)
     
     selectNextAction = function(self)
     
-        -- TODO(Gordon): Add different levels of threshold for a more gradual change in behaviour
-    
-        local influenceHighEnough = false
         local highestInfluence = 0
         local highestInfluenceAction = 0
     
-        --iterate through the influence table and select the highest
+        -- iterate through the influence table and store the action of the highest value
         for action, influence in ipairs(self.influenceTable) do
             if influence > highestInfluence then
                 highestInfluence = influence
@@ -171,11 +190,25 @@ return function(x, y)
             end
         end
         
-        -- if the highest influence is over the threshold select that action
-        if highestInfluence >= self.influenceThreshold then
+        -- if the highest value is greater than the upper threshold then return that action
+        if highestInfluence >= pigeonInfluenceUpperThreshold then
             return highestInfluenceAction
         end
-    
+        
+        -- create a table of actions and asign their percentage of being selected.
+        actionPotentials = {}
+        for _, action in pairs(Action) do
+            actionPotentials[action] = 100
+            if self.influenceTable[action] > pigeonInfluenceLowerThreshold then
+                actionPotentials[action] = actionPotentials[action] + self.influenceTable[action]
+            end
+        end
+        
+        -- initialise influence table
+        for _, action in pairs(Action) do
+            self.influenceTable[action] = 0
+        end
+        
         -- otherwise return a random action
         return random_value(Action)
     end,

@@ -109,7 +109,7 @@ return function(x, y)
         self.foodLevel = self.foodLevel - foodDecrement
         if self.foodLevel <= 0 then
             self.foodLevel = 0
-        end
+        ends
         
         -- decrement all actions in the influence table
         for action in pairs(self.influenceTable) do

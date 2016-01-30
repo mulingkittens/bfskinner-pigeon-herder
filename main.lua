@@ -89,7 +89,7 @@ function love.load(args)
 
     -- initialise pigeons
     local pigeons = Game.Pigeons
-    for i = 1, 1 do
+    for i = 1, 10 do
       pigeons[#pigeons + 1] = PigeonFactory(i * 50, i * 50)
     end
 end

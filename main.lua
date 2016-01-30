@@ -148,11 +148,6 @@ function love.draw(dt)
     love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
     love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
 
-    -- Draw the feed radius if showing
-    if feedRadiusShowingTimer > 0 then
-        love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
-    end
-
     -- Draw objects
     for i, object in ipairs(Game.Objects) do
       object:draw(dt)
@@ -162,7 +157,11 @@ function love.draw(dt)
     for i, pigeon in ipairs(Game.Pigeons) do
         pigeon:draw(Game, dt)
     end
-    --love.graphics.draw(blah) -- ?
+    
+        -- Draw the feed radius if showing
+    if feedRadiusShowingTimer > 0 then
+        love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
+    end
 
     love.graphics.pop()
 end
@@ -193,6 +192,11 @@ function love.mousepressed(x, y, button, istouch)
 
         if pigeonFeedByRadius then
         
+            -- add the feed radius display
+            feedRadiusShowingTimer = pigeonFeedRadiusDisplayTime
+            feedRadiusX = mouseX - (pigeonFeedRadius / 2)
+            feedRadiusY = mouseY - (pigeonFeedRadius / 2)
+        
             -- check if the pigeon is within the feed range
             local distanceFromMouse = ((mouseX-pigeonCentreX)^2+(mouseY-pigeonCentreY)^2)^0.5
 
@@ -200,11 +204,6 @@ function love.mousepressed(x, y, button, istouch)
             
                 -- feed the pigeon
                 pigeon:feed()
-                
-                -- add the feed radius display
-                feedRadiusShowingTimer = pigeonFeedRadiusDisplayTime
-                feedRadiusX = mouseX - (pigeonFeedRadius / 2)
-                feedRadiusY = mouseY - (pigeonFeedRadius / 2)
             
             end
         

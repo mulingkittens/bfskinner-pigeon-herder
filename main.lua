@@ -1,5 +1,6 @@
 require("src/variables")
 
+PigeonFactory = require("src/pigeon")
 Game = {
   -- Screen configuration
   Screen = {
@@ -39,7 +40,6 @@ Game = {
   }
 }
 
-PigeonFactory = require("src/pigeon")
 --blah = require("src/arena")
 
 feedRadiusShowingTimer = 0

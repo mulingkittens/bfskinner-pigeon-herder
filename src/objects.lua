@@ -118,8 +118,14 @@ create_goal = function(x, y)
         draw = function(self, dt)
         
             love.graphics.draw(Game.Sprites.Goal, self.x, self.y)
+            
+        end,
         
-        end
+        get_occlusion_block = function(self)
+        
+            return Rect(0, 0, 1, 1)
+        
+        end,
         
     }, {
 

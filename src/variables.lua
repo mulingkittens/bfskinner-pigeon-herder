@@ -1,6 +1,6 @@
 -- game variables
 
-pigeonPenSpawnTime = 20
+pigeonPenSpawnTime = 5
 pigeonPenSpawnTimerDecrement = 0.1
 
 pigeonFeedByRadius = true

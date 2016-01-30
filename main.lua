@@ -34,7 +34,7 @@ Game = {
   
     -- Level state
     LevelState = {
-        timeRunning = 0
+        timeRunning = 0,
         totalPigeons = 10,
         deadPigeons = 0,
         capturedPigeons = 0

@@ -108,7 +108,10 @@ function love.load(args)
     if not debug then
         Game.Debug = {}
     end  
-    
+
+    -- seed random number generator
+    love.math.setRandomSeed(love.timer.getTime())
+
     -- Default background color
     love.graphics.setBackgroundColor(255, 255, 255)
     

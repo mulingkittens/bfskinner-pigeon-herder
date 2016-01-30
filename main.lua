@@ -103,12 +103,56 @@ end
 
 function love.mousepressed(x, y, button, istouch)
   -- Convert coordinates into game space
-  x = x / Game.Screen.scale
-  y = y / Game.Screen.scale
+    local mouseX = x / Game.Screen.scale
+    local mouseY = y / Game.Screen.scale
+
+    local pigeonWidth = Game.Sprites.Pigeon:getWidth()
+    local pigeonHeight = Game.Sprites.Pigeon:getHeight()
+
+    -- check each pigeon's position relative to the mouse
+    for i, pigeon in ipairs(Game.Pigeons) do
+
+        local pigeonLeft = pigeon.x
+        local pigeonTop = pigeon.y
+        local pigeonRight = pigeon.x + pigeonWidth
+        local pigeonBottom = pigeon.y + pigeonHeight
+        local pigeonCentreX = pigeon.x + (pigeonWidth / 2)
+        local pigeonCentreY = pigeon.y + (pigeonHeight / 2)
+        
+        if pigeonFeedByRadius then
+        
+            -- check if the pigeon is within the feed range
+            local distanceFromMouse = ((mouseX-pigeonCentreX)^2+(mouseY-pigeonCentreY)^2)^0.5
+            print(distanceFromMouse)
+                
+            if distanceFromMouse <= pigeonFeedRadius then
+            
+                -- feed the pigeon
+                pigeon:feed()
+            
+            end
+        
+        else
+        
+            if (mouseX > pigeonLeft) and (mouseX < pigeonRight) and
+                (mouseY > pigeonTop) and (mouseX < pigeonBottom) then
+               
+                -- feed the pigeon under the cursor
+                pigeon:feed()
+               
+            end
+        
+        end
+
+    end
 
   -- Spawn a new pigeon there
-  local pigeons = Game.Pigeons
-  pigeons[#pigeons + 1] = PigeonFactory(
-    x - Game.Sprites.Pigeon:getWidth() / 2,
-    y - Game.Sprites.Pigeon:getHeight() / 2)
+  -- local pigeons = Game.Pigeons
+  -- pigeons[#pigeons + 1] = PigeonFactory(
+  --   x - pigeonWidth / 2,
+  --  y - Game.Sprites.Pigeon:getHeight() / 2)
 end
+
+
+
+function math.dist(x1,y1, x2,y2) return ((x2-x1)^2+(y2-y1)^2)^0.5 end

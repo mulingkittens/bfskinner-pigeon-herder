@@ -2,7 +2,8 @@ require("src/util")
 pigeonSpeed = 50;
 
 foodMaximum = 100
-foodDecrement = 1
+fooPerFeed = 10
+foodDecrement = 0.1
 
 pigeonInfluencePerClick = 20
 pigeonInfluenceMax = 100
@@ -104,6 +105,9 @@ return function(x, y)
         
         -- decrement food level
         self.foodLevel = self.foodLevel - foodDecrement
+        if self.foodLevel <= 0 then
+            self.foodLevel = 0
+        end
         
         -- decrement all actions in the influence table
         for action in ipairs(self.influenceTable) do
@@ -133,6 +137,7 @@ return function(x, y)
             local action_name = ActionNames[self.action]
             local action_time = string.format('%0.1f', self.currentActionTime)
             love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
+            love.graphics.print("Food:" .. self.foodLevel, self.x -10, self.y - 30)
             love.graphics.setColor(r, g, b, a)
         end
         if Game.Debug.draw_bounding_boxes then
@@ -143,7 +148,7 @@ return function(x, y)
         end
     end,
     
-    feed = function(self, value)
+    feed = function(self)
         
         -- increment the influence table for the current action
         self.influenceTable[self.action] = self.influenceTable[self.action] + pigeonInfluencePerClick
@@ -154,10 +159,10 @@ return function(x, y)
         end
         
         -- increment the food level
-        self.foodLevel = self.foodLevel + value
+        self.foodLevel = self.foodLevel + fooPerFeed
         
         -- if the food level exceeds the maximum, kill the pigeon
-        if foodLevel > fooMaximum then
+        if self.foodLevel > foodMaximum then
             self.currentState = state.dead
         end
     

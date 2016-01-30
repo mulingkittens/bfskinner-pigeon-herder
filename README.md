@@ -1,5 +1,5 @@
 TEAM MULING KITTENS
 
-A game about rituals, or superstitions or Cthulhu or maybe just a reskinning of that good one to make it about human sacrifice.
+Skinner's Pigeons
 
-
+A game inspired by Skinner's Pigeon. Guide a posse of pigeons through an obstacle course to a goal by influencing (reinforcing) behaviours from the random set being performed.

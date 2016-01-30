@@ -150,6 +150,11 @@ function love.update(dt)
     -- Update pigeons
     for i, pigeon in ipairs(Game.Pigeons) do
         pigeon:update(dt)
+        
+        -- If pigeon is dead remove him from the game
+        if not pigeon:isAlive() then
+            table.remove(Game.Pigeons, i)
+        end
     end
 
     -- Decrement the feed radius timer

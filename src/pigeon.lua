@@ -139,12 +139,17 @@ return function(x, y)
     
     feed = function(self)
         
+        -- return because you can't feed a dead  pigeon
+        if self.currentState == state.dead then     
+            return
+        end
+        
         -- increment the influence table for the current action
         self.influenceTable[self.action] = self.influenceTable[self.action] + pigeonInfluencePerClick
         
         -- if the influence level exceeds the maximum set it to the maximum
         if self.influenceTable[self.action] > pigeonInfluenceMax then
-            self.infleunceTable[self.action] = pigeonInfuenceMax
+            self.influenceTable[self.action] = pigeonInfluenceMax
         end
         
         -- increment the food level

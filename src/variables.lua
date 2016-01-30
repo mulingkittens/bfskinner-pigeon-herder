@@ -3,7 +3,7 @@
 pigeonFeedByRadius = true
 pigeonFeedRadius = 150
 
-pigeonSpeed = 50;
+pigeonSpeed = 50
 
 foodMaximum = 100
 fooPerFeed = 10

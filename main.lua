@@ -41,7 +41,7 @@ Game = {
   -- Level
   LevelGrid = false,
   
-  -- TODO(Gordon): Integrate this with the level loader
+  -- TODO(Gordon): Integrate objects with the level loader
   --[[
   Objects = {
       default_constructors = setmetatable({
@@ -78,7 +78,7 @@ function love.load(args)
             debug = true
         end
     end
-
+    
     -- Set window size
     local flags = {
         minwidth = 640,
@@ -87,29 +87,29 @@ function love.load(args)
         vsync = true,
         resizable = true,
     }
-  
+    
     if fullscreen then
         flags.fullscreen = true
         flags.fullscreentype = "desktop"
     end
-  
+    
     -- Set window dimensions and mode
     love.window.setMode(1280, 720, flags)
-
+    
     -- Set debug mode
     if not debug then
         Game.Debug = {}
-    end
-
+    end  
+    
     -- Default background color
     love.graphics.setBackgroundColor(255, 255, 255)
-
+    
     -- Initialise level objects
     local objects = Game.Objects
     objects[#objects + 1] = ObjectFactory.create_pen(50, 550, 3)
     
 end
-
+    
 function love.update(dt)
     
     -- Update the screen scale to match the window
@@ -130,13 +130,13 @@ function love.update(dt)
             end
         end
     end
-
-    -- update pigeons
+    
+    -- Update pigeons
     for i, pigeon in ipairs(Game.Pigeons) do
         pigeon:update(dt)
     end
-    
-    -- decrement the feed radius timer
+
+    -- Decrement the feed radius timer
     feedRadiusShowingTimer = feedRadiusShowingTimer - dt;
     if feedRadiusShowingTimer <= 0 then
         feedRadiusShowingTimer = 0
@@ -148,7 +148,7 @@ function love.draw(dt)
     love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
     love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
 
-    --draw the feed radius if showing
+    -- Draw the feed radius if showing
     if feedRadiusShowingTimer > 0 then
         love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
     end
@@ -158,26 +158,26 @@ function love.draw(dt)
       object:draw(dt)
     end
 
-    -- draw pigeons
+    -- Draw pigeons
     for i, pigeon in ipairs(Game.Pigeons) do
-      pigeon:draw(dt)
+        pigeon:draw(Game, dt)
     end
-    --love.graphics.draw(blah)
+    --love.graphics.draw(blah) -- ?
 
-  love.graphics.pop()
+    love.graphics.pop()
 end
 
 function love.keypressed(key, isrepeat)
-  if key == 'escape' then
-    love.event.quit()
-  end
+    if key == 'escape' then
+        love.event.quit()
+    end
 end
 
 function love.mousepressed(x, y, button, istouch)
-  -- Convert coordinates into game space
+    -- Convert coordinates into game space
     local mouseX = x / Game.Screen.scale
     local mouseY = y / Game.Screen.scale
-    
+
     local pigeonWidth = Game.Sprites.Pigeon:getWidth()
     local pigeonHeight = Game.Sprites.Pigeon:getHeight()
 
@@ -190,7 +190,7 @@ function love.mousepressed(x, y, button, istouch)
         local pigeonBottom = pigeon.y + pigeonHeight
         local pigeonCentreX = pigeon.x + (pigeonWidth / 2)
         local pigeonCentreY = pigeon.y + (pigeonHeight / 2)
-        
+
         if pigeonFeedByRadius then
         
             -- check if the pigeon is within the feed range
@@ -216,17 +216,7 @@ function love.mousepressed(x, y, button, istouch)
                
                 -- feed the pigeon under the cursor
                 pigeon:feed()
-               
             end
-        
         end
-
     end
-
-  -- Spawn a new pigeon there
-  -- local pigeons = Game.Pigeons
-  -- pigeons[#pigeons + 1] = PigeonFactory(
-  --   x - pigeonWidth / 2,
-  --  y - Game.Sprites.Pigeon:getHeight() / 2)
-  
 end

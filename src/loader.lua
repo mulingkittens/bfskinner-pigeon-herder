@@ -29,6 +29,7 @@ The following items are predefined and can be overriden:
     *: Whirling blades of death. Fuck you again.
 ]]
 
+
 local function parse_map(map_s)
     -- given a map string `map_s` parse as a multidimensional array
     -- with the origin at the top-left.
@@ -66,7 +67,6 @@ local function load_level_file(level_name, fs)
 
     return chunk()
 end
-
 
 
 local function construct_level(level_cfg, map_grid)

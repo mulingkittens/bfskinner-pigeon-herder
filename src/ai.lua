@@ -45,8 +45,9 @@ learning feedback:
 ]]
 
 
-function short_pattern_noise()
-  return (love.math.random(10, 1000) / 1000)
+function pattern_noise()
+  -- Have to multiply and divide by 1000, because love.math.random works with ints
+  return (love.math.random(-0.05 * 1000, 0.05 * 1000) / 1000)
 end
 
 
@@ -69,7 +70,7 @@ ai = {
         self.patterns[name] = {
           length = 1,
           actions = {action},
-          weight = short_pattern_noise(),
+          weight = math.abs(pattern_noise()),
         }
         -- Long patterns will be added as food events occur
       end
@@ -123,6 +124,22 @@ ai = {
   finish_current_action = function(self)
     table.remove(self.active_pattern_actions, 1)
   end,
+
+  perturb_patterns = function(self)
+    for name, pattern in pairs(self.patterns) do
+      local new_weight = math.min(math.max(0.01, pattern.weight + pattern_noise()), 1.0)
+      --print("reweighting", name, pattern.weight, new_weight)
+      pattern.weight = new_weight
+    end
+  end,
+
+  decay_patterns = function(self)
+    for name, pattern in pairs(self.patterns) do
+      local new_weight = math.min(math.max(0.01, pattern.weight * (pattern.weight ^ 0.1)), 1.0)
+      --print("decaying", name, pattern.weight, new_weight)
+      pattern.weight = new_weight
+    end
+  end,
 }
 
 Action = {
@@ -151,5 +168,8 @@ for i = 1,30 do
   print('action:', action)
   ai:finish_current_action()
 
+  ai:perturb_patterns()
+  ai:decay_patterns()
 
+  print "------------------------------------------------------------"
 end

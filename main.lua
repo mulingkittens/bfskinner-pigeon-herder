@@ -73,7 +73,6 @@ function love.load(args)
     Game.Debug = {}
   end
 
-  local level = load_level_file(
   -- Default background color
   love.graphics.setBackgroundColor(255, 255, 255)
 

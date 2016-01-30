@@ -61,6 +61,19 @@ end
 
 ActionNames = table_key_index(Action)
 
+ActionColors = {
+  think = { 0, 0, 0, 0, },
+  move_up = { 16, 16, 32, 255, },
+  move_down = { 32, 32, 64, 255, },
+  move_left = { 48, 48, 96, 255, },
+  move_right = { 64, 64, 128, 255, },
+  move_up_left = { 80, 80, 160, 255, },
+  move_up_right = { 96, 96, 192, 255, },
+  move_down_left = { 112, 112, 224, 255, },
+  move_down_right = { 128, 128, 255, 255, },
+  peck = { 0, 192, 0, 255, },
+  flap = { 255, 0, 0, 255, },
+}
 
 return function(x, y)
 
@@ -117,7 +130,17 @@ return function(x, y)
     draw = function(self, Game, dt)
         
         -- draw pigeon
-        love.graphics.draw(Game.Sprites.Pigeon, self.x, self.y)
+        local draw = function()
+          love.graphics.draw(Game.Sprites.Pigeon, self.x, self.y)
+        end
+        if Game.Debug.draw_actions then
+          local r, g, b, a = love.graphics.getColor()
+          love.graphics.setColor(unpack(ActionColors[ActionNames[self.action]]))
+          draw()
+          love.graphics.setColor(r, g, b, a)
+        else
+          draw()
+        end
 
         -- debug output
         if Game.Debug.draw_actions then

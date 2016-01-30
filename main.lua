@@ -28,6 +28,7 @@ Game = {
   -- All pigeons
   Pigeons = {},
   LevelGrid = {},
+  Level = {},
   Objects = {
       default_constructors = setmetatable({
           P = PigeonFactory,
@@ -37,7 +38,7 @@ Game = {
               return rawget(self, idx) or function() --[[ do nothing]] end
           end
       })
-  }
+    }
 }
 
 --blah = require("src/arena")
@@ -50,11 +51,14 @@ function love.load(args)
   -- Look for args
   local fullscreen = false
   local debug = false
+  local display = 1
   for _, arg in ipairs(args) do
     if arg == "fullscreen" then
       fullscreen = true
     elseif arg == "debug" then
       debug = true
+    elseif arg == "display2" then
+        display = 2
     end
   end
 
@@ -65,6 +69,7 @@ function love.load(args)
     fullscreen = arg.fullscreen or false,
     vsync = true,
     resizable = true,
+    display = display,
   }
   if fullscreen then
     flags.fullscreen = true
@@ -80,6 +85,18 @@ function love.load(args)
   -- Default background color
   love.graphics.setBackgroundColor(255, 255, 255)
 
+    levelLoader = require("src/basic_loader")
+    pigeonFactory = require("src/pigeon")
+    levelFactory = require("src/level_renderer")
+
+    local levelCfg = levelLoader({objects = {default_object_constructor = function() end}}, "assets/levels/level01.txt")
+    print(levelCfg)
+
+    local pigeonList = {}
+    local level = levelFactory(levelCfg)
+    level:initialise()
+    Game.Level = level
+
     -- initialise pigeons
     local pigeons = Game.Pigeons
     for i = 1, 20 do
@@ -88,11 +105,12 @@ function love.load(args)
 end
 
 function love.update(dt)
-  -- Update the screen scale to match the window
-  Game.Screen.scale = love.graphics.getWidth() / Game.Screen.width
-  Game.Screen.offset_x = (love.graphics.getWidth() - (Game.Screen.width * Game.Screen.scale)) / 2
-  Game.Screen.offset_y = (love.graphics.getHeight() - (Game.Screen.height * Game.Screen.scale)) / 2
-
+    -- Update the screen scale to match the window
+    Game.Screen.scale = love.graphics.getWidth() / Game.Screen.width
+    Game.Screen.offset_x = (love.graphics.getWidth() - (Game.Screen.width * Game.Screen.scale)) / 2
+    Game.Screen.offset_y = (love.graphics.getHeight() - (Game.Screen.height * Game.Screen.scale)) / 2
+    --Game.Level:update(dt)
+  
     -- update pigeons
     for i, pigeon in ipairs(Game.Pigeons) do
       pigeon:update(Game, dt)
@@ -115,13 +133,25 @@ function love.draw(dt)
         love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
     end
 
+    local _r, _g, _b, _a = love.graphics.getColor()
+    --love.graphics.setColor(0, 0, 0, 255)
+    --love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
+    --love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
+    local goodBatch = require("src/arena")
+    --Game.Level.spriteBatch = goodBatch
+  
+    Game.Level:draw()
+    --print(Game.Level.spriteBatch:getCount())
+    --love.graphics.draw(Game.Level.spriteBatch)
+    --love.graphics.draw(require("src/arena"))
     -- draw pigeons
-    for i, pigeon in ipairs(Game.Pigeons) do
+    --[[--for i, pigeon in ipairs(Game.Pigeons) do
       pigeon:draw(Game, dt)
-    end
-    --love.graphics.draw(blah)
+    end--]]--
 
-  love.graphics.pop()
+
+    --  love.graphics.setColor(_r, _g, _b, _a)
+    love.graphics.pop()
 end
 
 function love.keypressed(key, isrepeat)

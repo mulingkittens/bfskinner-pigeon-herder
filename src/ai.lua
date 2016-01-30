@@ -75,12 +75,9 @@ ai = {
     initialise = function(self)
         -- Set up initial known patterns
         for name, action in pairs(Action) do
-            -- Should phase out Action.think, cause it's not an action, it's the selection
-            if name ~= 'think' then
-                -- Short patterns are single behaviours
-                self:add_pattern({action}, name)
-                -- Long patterns will be added as food events occur
-            end
+            -- Short patterns are single behaviours
+            self:add_pattern({action}, name)
+            -- Long patterns will be added as food events occur
         end
 
         for i, pattern in pairs(self.patterns) do
@@ -142,7 +139,6 @@ ai = {
     finish_current_action = function(self)
         local action = self:get_current_action()
         table.remove(self.active_pattern_actions, 1)
-        -- TODO  don't add think to history
         self.action_history[#self.action_history + 1] = action
         if #self.action_history > 5 then
             table.remove(self.action_history, 1)
@@ -173,11 +169,9 @@ ai = {
         -- Reinforce the short pattern for the current action weakly
         local current_action = self:get_current_action()
         local current_action_name = ActionNames[current_action]
-        if current_action_name ~= 'think' then
-            local current_action_pattern = self.patterns[current_action_name]
-            print(current_action, current_action_name, current_action_pattern)
-            current_action_pattern.weight = reinforce_weak(current_action_pattern.weight)
-        end
+        local current_action_pattern = self.patterns[current_action_name]
+        print(current_action, current_action_name, current_action_pattern)
+        current_action_pattern.weight = reinforce_weak(current_action_pattern.weight)
     end,
 
     perturb_patterns = function(self)

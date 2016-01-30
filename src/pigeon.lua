@@ -44,17 +44,6 @@ end
 
 local Action = {}
 
-Action.think = function(self, dt, other_pigeons)
-    -- Pick a random action to do
-
-    -- Select the next action for the pigeon
-    self.action = self:selectNextAction()
-    
-    -- Create a variying action time
-    actionTimeVariance = (math.random() * 1) - 0.5
-    self.currentActionTime = pigeonActionTime + actionTimeVariance
-    return true
-end
 Action.move_up = create_move_action(0, -1)
 Action.move_down = create_move_action(0, 1)
 Action.move_left = create_move_action(-1, 0)
@@ -75,7 +64,6 @@ end
 local ActionNames = table_key_index(Action)
 
 local ActionColors = {
-    think = { 0, 0, 0, 0, },
     move_up = { 16, 16, 32, 255, },
     move_down = { 32, 32, 64, 255, },
     move_left = { 48, 48, 96, 255, },
@@ -93,7 +81,7 @@ return function(x, y)
     local new_pigeon = setmetatable({
      
         currentState = state.alive,
-        action = Action.think,
+        action = nil,
         currentActionTime = 0,
         x = x,
         y = y,
@@ -108,6 +96,8 @@ return function(x, y)
             for _, action in pairs(Action) do
                 self.influenceTable[action] = 0
             end
+
+            self:setNextAction()
         end,
         
         update = function(self, dt)
@@ -137,8 +127,7 @@ return function(x, y)
             -- decrement current action time
             self.currentActionTime = self.currentActionTime - dt
             if failed or self.currentActionTime <= 0 then
-                self.action = Action.think
-                self.currentActionTime = 0
+                self:setNextAction()
             end
         end,
      
@@ -241,6 +230,15 @@ return function(x, y)
                 end
             end
             ]]
+        end,
+
+        setNextAction = function(self)
+            -- Select the next action for the pigeon
+            self.action = self:selectNextAction()
+            
+            -- Create a variying action time
+            actionTimeVariance = (math.random() * 1) - 0.5
+            self.currentActionTime = pigeonActionTime + actionTimeVariance
         end,
         
     }, {

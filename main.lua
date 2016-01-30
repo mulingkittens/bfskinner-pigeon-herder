@@ -2,7 +2,7 @@ require("src/variables")
 
 PigeonFactory = require("src/pigeon")
 PenFactory = pcall(require, "src/pen") -- TODO
---ObjectFactory = require("src/objects")
+ObjectFactory = require("src/objects")
 LoadLevel = require("src/loader")
 
 --level entities
@@ -61,6 +61,7 @@ Game = {
   
   -- TODO(Gordon): Integrate objects with the level loader
   Objects = {
+    activeConstructors = {},
     default_constructors = setmetatable({
             P = Pen(30, level), --Additionally takes number of pigeons to spawn, can override on level specifics
             S = Pit(level),
@@ -79,9 +80,6 @@ Game = {
 Game.Level = level
 --LoadLevel requires Game in scope
 Game.LevelGrid = LoadLevel("level_test")
-for k, v in pairs(Game.LevelGrid) do
-    print(k, v, "::::::::")
-end
 
 feedRadiusShowingTimer = 0
 feedRadiusX = 0

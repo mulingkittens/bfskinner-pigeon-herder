@@ -2,7 +2,7 @@ pigeonSprite = love.graphics.newImage('src/pigeon.png')
 
 return function(xPos, yPos)
 
-  return setmetatable({
+    return setmetatable({
     
     m_xPos = xPos,
     m_yPos = yPos,
@@ -11,7 +11,7 @@ return function(xPos, yPos)
     update = function(self, dt)
       
       -- update  
-      
+    
     end,
     
     draw = function(self, dt)

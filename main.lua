@@ -10,13 +10,9 @@ pigeonFactory = require("src/pigeon")
 local pigeonList = {}
 
 function love.load(arg)
-    -- Game setup
-    -- test_sprite = love.graphics.newImage('../assets/test.png')
-    
+    -- initialise pigeons
     for i = 1, 5 do
-    
       pigeonList[#pigeonList+1] = pigeonFactory(i * 50, i * 50)
-    
     end
 end
 
@@ -31,21 +27,16 @@ function love.update(dt)
         test_vy = -test_vy
     end
     
+    -- update pigeons
     for i, pigeon in ipairs(pigeonList) do
-    
       pigeon:update(dt)
-    
     end
 end
 
 function love.draw(dt)
-    -- Draw things
-    -- love.graphics.draw(test_sprite, test_x, test_y)
-    
+    -- draw pigeons
     for i, pigeon in ipairs(pigeonList) do
-    
       pigeon:draw(dt)
-    
     end
 end
 

@@ -19,6 +19,7 @@ action = {
     peck = 9,
     flap = 10,
     }
+numOfActions =  10
 
 return function(xPos, yPos)
 
@@ -45,7 +46,7 @@ return function(xPos, yPos)
     update = function(self, dt)
         
         -- if the pigeon has died return imediately
-        if self.currentState ~= state.alive then     
+        if self.currentState == state.dead then     
             return
         end
         
@@ -66,33 +67,37 @@ return function(xPos, yPos)
             [action.none] = function()
                 -- if pigeon has no action, assign one
                 if self.currentAction == action.none then
-                    self.currentAction = math.floor((math.random() * 5) + 1)
-                    self.currentActionTime = 10
+                    self.currentAction = math.floor((math.random() * numOfActions) + 1)
+                    self.currentActionTime = 2
                 end
             end,
             [action.move_up] = function()
-                -- move_up
+                self.yPos = self.yPos + 1
             end,
             [action.move_down] = function()
-                -- move_down
+                self.yPos = self.yPos - 1
             end,
             [action.move_left] = function()
-                -- move_left
+                self.xPos = self.xPos - 1
             end,
             [action.move_right] = function()
-                -- move_right
+                self.xPos = self.xPos + 1
             end,
             [action.move_up_left] = function()
-                -- move_up_left
+                self.xPos = self.xPos - 1
+                self.yPos = self.yPos + 1
             end,
             [action.move_up_right] = function()
-                -- move_up_right
+                xPos = self.xPos + 1
+                yPos = self.yPos + 1
             end,
             [action.move_down_left] = function()
-                -- move_down_left
+                self.xPos = self.xPos - 1
+                self.yPos = self.yPos - 1
             end,
             [action.move_down_right] = function()
-                -- move_down_right
+                self.xPos = self.xPos + 1
+                self.yPos = self.yPos - 1
             end,
             [action.peck] = function()
                 -- peck
@@ -103,6 +108,20 @@ return function(xPos, yPos)
         })
     
         switch[currentAction]()
+        
+        -- fix position to be within the bouinds of the level
+        if self.xPos <= 50 then
+            self.xPos = 50
+        end
+        if self.yPos <= 50 then
+            self.yPos = 50
+        end
+        if self.xPos >= 550 then
+            self.xPos = 550
+        end
+        if self.yPos >= 550 then
+            self.yPos = 550
+        end
     
     end,
     
@@ -118,6 +137,9 @@ return function(xPos, yPos)
     end,
     
     feed = function(self, value)
+        
+        -- increment the influence table for the current action
+        self.influenceTable[self.currentAction] = self.influenceTable[self.currentAction] + 20
         
         -- increment the food level
         self.foodLevel = self.foodLevel + value

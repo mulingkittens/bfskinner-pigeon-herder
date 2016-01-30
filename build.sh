@@ -1,5 +1,13 @@
 #!/bin/bash
 
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    LOVE=`which love`
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    LOVE="/Applications/love.app/Contents/MacOS/love"
+elif [[ "$OSTYPE" == "msys" ]]; then
+    LOVE="$PROGRAMFILES/love/love.exe"
+fi
+
 project_dir() {
     if [ -n "$BASH_SOURCE" ] ; then
         echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/";
@@ -13,5 +21,4 @@ project_dir() {
 cd "$(project_dir)/src"
 
 zip -r ../game.love *
-love ../game.love
-
+"$LOVE" ../game.love

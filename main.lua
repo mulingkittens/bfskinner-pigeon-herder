@@ -1,45 +1,75 @@
--- Just a bunch of globals for now
-test_sprite = nil
-test_x = 0
-test_y = 0
-test_vx = 50
-test_vy = 50
+Game = {
+  -- Screen configuration
+  Screen = {
+    -- Coordinate system size
+    width = 1920,
+    height = 1080,
+    -- Scale and offset to fit window
+    scale = 1,
+    offset_x = 0,
+    offset_y = 0,
+  },
+
+  -- Sprites
+  Sprites = {
+    Pigeon = love.graphics.newImage('assets/pigeon.png')
+  },
+
+  -- All pigeons
+  Pigeons = {},
+}
 
 pigeonFactory = require("src/pigeon")
 --blah = require("src/arena")
 
-local pigeonList = {}
-
 function love.load(arg)
+  -- Set window size
+  love.window.setMode(1280, 720, {
+    minwidth = 640,
+    minheight = 360,
+    -- fullscreen = true,
+    -- fullscreentype = "desktop",
+    vsync = true,
+    resizable = true,
+  })
+
+  -- Default background color
+  love.graphics.setBackgroundColor(255, 255, 255)
+
     -- initialise pigeons
+    local pigeons = Game.Pigeons
     for i = 1, 5 do
-      pigeonList[#pigeonList + 1] = pigeonFactory(i * 50, i * 50)
-      pigeonList[#pigeonList]:initialise()
+      pigeons[#pigeons + 1] = pigeonFactory(i * 50, i * 50)
+      pigeons[#pigeons]:initialise()
     end
 end
 
 function love.update(dt)
-    -- Update game state
-    test_x = test_x + test_vx * dt
-    test_y = test_y + test_vy * dt
-    if test_x > 100 or test_x < 0 then
-        test_vx = -test_vx
-    end
-    if test_y > 100 or test_y < 0  then
-        test_vy = -test_vy
-    end
-    
+  -- Update the screen scale to match the window
+  Game.Screen.scale = love.graphics.getWidth() / Game.Screen.width
+  Game.Screen.offset_x = (love.graphics.getWidth() - (Game.Screen.width * Game.Screen.scale)) / 2
+  Game.Screen.offset_y = (love.graphics.getHeight() - (Game.Screen.height * Game.Screen.scale)) / 2
+
     -- update pigeons
-    for i, pigeon in ipairs(pigeonList) do
-      pigeon:update(dt, pigeonList)
+    for i, pigeon in ipairs(Game.Pigeons) do
+      pigeon:update(Game, dt)
     end
 end
 
 function love.draw(dt)
+  love.graphics.push()
+  local _r, _g, _b, _a = love.graphics.getColor()
+  love.graphics.setColor(0, 0, 0, 255)
+  love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
+  love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
+
     -- draw pigeons
-    for i, pigeon in ipairs(pigeonList) do
-      pigeon:draw(dt)
+    for i, pigeon in ipairs(Game.Pigeons) do
+      pigeon:draw(Game, dt)
     end
     --love.graphics.draw(blah)
+
+  love.graphics.setColor(_r, _g, _b, _a)
+  love.graphics.pop()
 end
 

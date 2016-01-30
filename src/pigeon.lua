@@ -1,5 +1,4 @@
 require("src/util")
-pigeonSprite = love.graphics.newImage('src/pigeon.png')
 pigeonSpeed = 50;
 
 debug_draw_actions = true
@@ -12,18 +11,18 @@ state = {
     }
 
 function create_move_action(dx, dy)
-    return function(self, dt, all_pigeons)
+    return function(self, Game, dt)
         new_x = self.x + dx * pigeonSpeed * dt
         new_y = self.y + dy * pigeonSpeed * dt
         new_rect = Rect(new_x, new_y, self.rect.w, self.rect.h)
 
         -- Fail if the pigeon wants to move off the screen
-        screen_rect = Rect(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        screen_rect = Rect(0, 0, Game.Screen.width, Game.Screen.height)
         if not screen_rect:contains(new_rect) then
             return false
         end
         -- Fail if the pigeon wants to move into another pigeon
-        for _, other_pigeon in ipairs(all_pigeons) do
+        for _, other_pigeon in ipairs(Game.Pigeons) do
             if self ~= other_pigeon then
                 if other_pigeon.rect:intersects(new_rect) then
                     return false
@@ -84,7 +83,7 @@ return function(x, y)
     
     initialise = function(self, dt)
         -- bounding box
-        self.rect = Rect(self.x, self.y, pigeonSprite:getWidth(), pigeonSprite:getHeight())
+        self.rect = Rect(self.x, self.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
 
         -- initialise influence table
         for _, action in pairs(Action) do
@@ -93,7 +92,7 @@ return function(x, y)
         
     end,
     
-    update = function(self, dt, other_pigeons)
+    update = function(self, Game, dt)
         
         -- if the pigeon has died return imediately
         if self.currentState == state.dead then     
@@ -104,7 +103,7 @@ return function(x, y)
         self.foodLevel = self.foodLevel - 1
 
         -- run the current action (unless it fails)
-        local failed = not self:action(dt, other_pigeons)
+        local failed = not self:action(Game, dt)
 
         -- increment current action time
         self.currentActionTime = self.currentActionTime - dt
@@ -114,15 +113,15 @@ return function(x, y)
         end
     end,
     
-    draw = function(self, dt)
+    draw = function(self, Game, dt)
         
         -- draw pigeon
-        love.graphics.draw(pigeonSprite, self.x, self.y)
+        love.graphics.draw(Game.Sprites.Pigeon, self.x, self.y)
 
         -- debug output
         if debug_draw_actions then
             local r, g, b, a = love.graphics.getColor()
-            love.graphics.setColor(255, 255, 255, 255)
+            love.graphics.setColor(0, 0, 0, 255)
             local action_name = ActionNames[self.action]
             local action_time = string.format('%0.1f', self.currentActionTime)
             love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)

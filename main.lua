@@ -98,6 +98,12 @@ function love.draw(dt)
   love.graphics.pop()
 end
 
+function love.keypressed(key, isrepeat)
+  if key == 'escape' then
+    love.event.quit()
+  end
+end
+
 function love.mousepressed(x, y, button, istouch)
   -- Convert coordinates into game space
   x = x / Game.Screen.scale

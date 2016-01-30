@@ -31,10 +31,6 @@ create_pen = function(x, y, numPigeons)
             
             if (self.spawnTimer == 0) and (self.numPigeons > 0) then
                 
-                print("SPAWN!")
-                print("Num Pigeons: ", self.numPigeons)
-                print("Spawn Timer: ", self.spawnTimer)
-                
                 self.numPigeons = self.numPigeons - 1
                 
                 self.spawnTimer = pigeonPenSpawnTime

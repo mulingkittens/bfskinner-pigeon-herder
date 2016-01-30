@@ -23,7 +23,6 @@ local function create_move_action(dx, dy)
         for _, other_pigeon in ipairs(Game.Pigeons) do
             if self ~= other_pigeon then
                 if other_pigeon.rect:intersects(new_rect) then
-                    print("Hit Pigeon")
                     return false
                 end
             end
@@ -32,7 +31,6 @@ local function create_move_action(dx, dy)
         -- Fail if the pigeon wants to move into an object
         for _, object in ipairs(Game.Objects) do
             if object:get_occlusion_block():intersects(new_rect) then
-                print("Hit Object")
                 return false
             end
         end
@@ -50,8 +48,12 @@ local Action = {}
 Action.think = function(self, dt, other_pigeons)
     -- Pick a random action to do
 
+    -- Select the next action for the pigeon
     self.action = self:selectNextAction()
-    self.currentActionTime = 2
+    
+    -- Create a variying action time
+    actionTimeVariance = (math.random() * 1) - 0.5
+    self.currentActionTime = pigeonActionTime + actionTimeVariance
     return true
 end
 Action.move_up = create_move_action(0, -1)

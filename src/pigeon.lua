@@ -61,7 +61,6 @@ Action.flap = function(self, dt, other_pigeons)
 end
 
 ActionNames = table_key_index(Action)
-ActionChoices = table_index(Action)
 
 
 return function(x, y)
@@ -178,9 +177,7 @@ return function(x, y)
         end
     
         -- otherwise return a random action
-        local key = random_choice(ActionChoices)
-        return Action[key]
-    
+        return random_value(Action)
     end,
     
   }, {

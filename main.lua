@@ -1,5 +1,6 @@
 require("src/variables")
 
+PigeonFactory = require("src/pigeon")
 Game = {
   -- Screen configuration
   Screen = {
@@ -28,14 +29,17 @@ Game = {
   Pigeons = {},
   LevelGrid = {},
   Objects = {
-      default_constructors = {
+      default_constructors = setmetatable({
           P = PigeonFactory,
-      }
+      },
+      {
+          __index = function(self, idx)
+              return rawget(self, idx) or function() --[[ do nothing]] end
+          end
+      })
   }
-
 }
 
-PigeonFactory = require("src/pigeon")
 --blah = require("src/arena")
 
 feedRadiusShowingTimer = 0

@@ -65,8 +65,10 @@ local function load_level_file(level_name, fs)
 end
 
 
-local function construct_level(level_cfg, map_grid, default_constructors)
-    level_cfg.constructors = Game.objects.default_constructors or function() end
+
+local function construct_level(level_cfg, map_grid)
+    local default_constructors = Game.objects.default_constructors
+    level_cfg.constructors = level_cfg.constructors or default_constructors
     local level = {}
     for x, row in ipairs(map_grid) do
         level[x] = {}
@@ -82,5 +84,5 @@ end
 return function(game_ctx, level_name)
     local level_cfg = load_level_file(level_name)
     local map_grid = parse_map(level_cfg.map)
-    return construct_level(level_cfg, map_grid, game_ctx.objects.default_constructors)
+    return construct_level(level_cfg, map_grid)
 end

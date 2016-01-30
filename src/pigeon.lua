@@ -33,6 +33,7 @@ return function(xPos, yPos)
     foodLevel = 0,
     foodMaximum = 100,
     influenceTable = {},
+    influenceThreshold = 50,
     
     initialise = function(self, dt)
         
@@ -65,9 +66,9 @@ return function(xPos, yPos)
         
         local switch = ({
             [action.none] = function()
-                -- if pigeon has no action, assign one
+                -- if pigeon has no action, assign a new action based on the influence table
                 if self.currentAction == action.none then
-                    self.currentAction = math.floor((math.random() * numOfActions) + 1)
+                    self.currentAction = self:selectNextAction()
                     self.currentActionTime = 2
                 end
             end,
@@ -106,7 +107,6 @@ return function(xPos, yPos)
                 -- flap
             end
         })
-    
         switch[currentAction]()
         
         -- fix position to be within the bouinds of the level
@@ -158,6 +158,32 @@ return function(xPos, yPos)
             return true
         end
         
+    end,
+    
+    selectNextAction = function(self)
+    
+        -- TODO(Gordon): Add different levels of threshold for a more gradual change in behaviour
+    
+        local influenceHighEnough = false
+        local highestInfluence = 0
+        local highestInfluenceIndex = 0
+    
+        --iterate through the influence table and select the highest
+        for i, influence in ipairs(self.influenceTable) do
+            if influence > highestInfluence then
+                highestInfluence = influence
+                highestInfluenceIndex = i
+            end
+        end
+        
+        -- if the highest influence is over the threshold select that action
+        if highestInfluence >= self.influenceThreshold then
+            return highestInfluenceIndex
+        end
+    
+        -- otherwise return a random action
+        return math.floor((math.random() * numOfActions) + 1)
+    
     end,
     
   }, {

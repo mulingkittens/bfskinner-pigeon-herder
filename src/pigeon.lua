@@ -75,175 +75,183 @@ local ActionColors = {
     flap = { 255, 0, 0, 255, },
 }
 
-return function(x, y)
+return function(LevelEntites)
+    return function(x, y)
+        print("PEN", x, y, LevelEntites)
+        local new_pigeon = setmetatable({
 
-    local new_pigeon = setmetatable({
+            currentState = state.alive,
+            action = Action.think,
+            currentActionTime = 0,
+            x = x,
+            y = y,
+            foodLevel = 0,
+            influenceTable = {},
 
-        currentState = state.alive,
-        action = Action.think,
-        currentActionTime = 0,
-        x = x,
-        y = y,
-        foodLevel = 0,
-        influenceTable = {},
+            initialise = function(self, dt)
+                -- bounding box
+                self.rect = Rect(self.x, self.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
 
-        initialise = function(self, dt)
-            -- bounding box
-            self.rect = Rect(self.x, self.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
-
-            -- initialise influence table
-            for _, action in pairs(Action) do
-                self.influenceTable[action] = 0
-            end
-
-        end,
-
-        update = function(self, Game, dt)
-
-            -- if the pigeon has died return imediately
-            if self.currentState == state.dead then
-                return
-            end
-
-            -- decrement food level
-            self.foodLevel = self.foodLevel - foodDecrement
-            if self.foodLevel <= 0 then
-                self.foodLevel = 0
-            end
-
-            -- decrement all actions in the influence table
-            for action in pairs(self.influenceTable) do
-                self.influenceTable[action] = self.influenceTable[action] - pigeonInfluenceDecrement
-                if self.influenceTable[action] <= 0 then
+                -- initialise influence table
+                for _, action in pairs(Action) do
                     self.influenceTable[action] = 0
                 end
-            end
 
-            -- run the current action (unless it fails)
-            local failed = not self:action(Game, dt)
+            end,
+            
+            quad = function(self)
+                return LevelEntites.sprites["pen"]
+            end,
+            
+            update = function(self, Game, dt)
 
-            -- increment current action time
-            self.currentActionTime = self.currentActionTime - dt
-            if failed or self.currentActionTime <= 0 then
-                self.action = Action.think
-                self.currentActionTime = 0
-            end
-        end,
-
-        draw = function(self, Game, dt)
-
-            -- draw pigeon
-            local draw = function()
-                love.graphics.draw(Game.Sprites.Pigeon, self.x, self.y)
-            end
-            if Game.Debug.draw_actions then
-                local r, g, b, a = love.graphics.getColor()
-                love.graphics.setColor(unpack(ActionColors[ActionNames[self.action]]))
-                draw()
-                love.graphics.setColor(r, g, b, a)
-            else
-                draw()
-            end
-
-            -- debug output
-            if Game.Debug.draw_actions then
-                local r, g, b, a = love.graphics.getColor()
-                love.graphics.setColor(0, 0, 0, 255)
-                local action_name = ActionNames[self.action]
-                local action_time = string.format('%0.1f', self.currentActionTime)
-                love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
-                love.graphics.print("Food:" .. self.foodLevel, self.x -10, self.y - 30)
-                love.graphics.print("Influence:" .. self.influenceTable[Action.move_down_right], self.x -10, self.y - 40)
-                love.graphics.setColor(r, g, b, a)
-            end
-            if Game.Debug.draw_bounding_boxes then
-                local r, g, b, a = love.graphics.getColor()
-                love.graphics.setColor(255, 0, 0, 255)
-                love.graphics.rectangle('line', self.rect.x, self.rect.y, self.rect.w, self.rect.h)
-                love.graphics.setColor(r, g, b, a)
-            end
-        end,
-
-        feed = function(self)
-
-            -- return because you can't feed a dead  pigeon
-            if self.currentState == state.dead then
-                return
-            end
-
-            -- increment the influence table for the current action
-            self.influenceTable[self.action] = self.influenceTable[self.action] + pigeonInfluencePerClick
-
-            -- if the influence level exceeds the maximum set it to the maximum
-            if self.influenceTable[self.action] > pigeonInfluenceMax then
-                self.influenceTable[self.action] = pigeonInfluenceMax
-            end
-
-            -- increment the food level
-            self.foodLevel = self.foodLevel + foodPerFeed
-
-            -- if the food level exceeds the maximum, kill the pigeon
-            if self.foodLevel > foodMaximum then
-                self.currentState = state.dead
-            end
-
-        end,
-
-        isAlive = function(self)
-            if self.currentState == state.dead then
-                return false
-            else
-                return true
-            end
-
-        end,
-
-        selectNextAction = function(self)
-
-            local highestInfluence = 0
-            local highestInfluenceAction = 0
-
-            -- iterate through the influence table and store the action of the highest value
-            for action, influence in pairs(self.influenceTable) do
-                print(ActionNames[action], " : ", influence)
-                if influence > highestInfluence then
-                    highestInfluence = influence
-                    highestInfluenceAction = action
+                -- if the pigeon has died return imediately
+                if self.currentState == state.dead then
+                    return
                 end
-            end
 
-            print(ActionNames[highestInfluenceAction])
-            print(highestInfluence)
-
-            -- if the highest value is greater than the upper threshold then return that action
-            if highestInfluence >= pigeonInfluenceUpperThreshold then
-                return highestInfluenceAction
-            end
-
-            -- create a table of actions and asign their percentage of being selected.
-            actionPotentials = {}
-            for _, action in pairs(Action) do
-                actionPotentials[action] = 100
-                if self.influenceTable[action] > pigeonInfluenceLowerThreshold then
-                    actionPotentials[action] = actionPotentials[action] + self.influenceTable[action]
+                -- decrement food level
+                self.foodLevel = self.foodLevel - foodDecrement
+                if self.foodLevel <= 0 then
+                    self.foodLevel = 0
                 end
-            end
 
-            -- initialise influence table
-            for _, action in pairs(Action) do
-                self.influenceTable[action] = 0
-            end
+                -- decrement all actions in the influence table
+                for action in pairs(self.influenceTable) do
+                    self.influenceTable[action] = self.influenceTable[action] - pigeonInfluenceDecrement
+                    if self.influenceTable[action] <= 0 then
+                        self.influenceTable[action] = 0
+                    end
+                end
 
-            -- otherwise return a random action
-            return random_value(Action)
-        end,
+                -- run the current action (unless it fails)
+                local failed = not self:action(Game, dt)
 
-    }, {
+                -- increment current action time
+                self.currentActionTime = self.currentActionTime - dt
+                if failed or self.currentActionTime <= 0 then
+                    self.action = Action.think
+                    self.currentActionTime = 0
+                end
+            end,
 
-        -- operators
+            draw = function(self, Game, dt)
 
-    })
+                -- draw pigeon
+                local draw = function()
+                    love.graphics.draw(Game.Sprites.Pigeon, self.x, self.y)
+                end
+                if Game.Debug.draw_actions then
+                    local r, g, b, a = love.graphics.getColor()
+                    love.graphics.setColor(unpack(ActionColors[ActionNames[self.action]]))
+                    draw()
+                    love.graphics.setColor(r, g, b, a)
+                else
+                    draw()
+                end
 
-    new_pigeon:initialise()
-    return new_pigeon
+                -- debug output
+                if Game.Debug.draw_actions then
+                    local r, g, b, a = love.graphics.getColor()
+                    love.graphics.setColor(0, 0, 0, 255)
+                    local action_name = ActionNames[self.action]
+                    local action_time = string.format('%0.1f', self.currentActionTime)
+                    love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
+                    love.graphics.print("Food:" .. self.foodLevel, self.x -10, self.y - 30)
+                    love.graphics.print("Influence:" .. self.influenceTable[Action.move_down_right], self.x -10, self.y - 40)
+                    love.graphics.setColor(r, g, b, a)
+                end
+                if Game.Debug.draw_bounding_boxes then
+                    local r, g, b, a = love.graphics.getColor()
+                    love.graphics.setColor(255, 0, 0, 255)
+                    love.graphics.rectangle('line', self.rect.x, self.rect.y, self.rect.w, self.rect.h)
+                    love.graphics.setColor(r, g, b, a)
+                end
+            end,
+
+            feed = function(self)
+
+                -- return because you can't feed a dead  pigeon
+                if self.currentState == state.dead then
+                    return
+                end
+
+                -- increment the influence table for the current action
+                self.influenceTable[self.action] = self.influenceTable[self.action] + pigeonInfluencePerClick
+
+                -- if the influence level exceeds the maximum set it to the maximum
+                if self.influenceTable[self.action] > pigeonInfluenceMax then
+                    self.influenceTable[self.action] = pigeonInfluenceMax
+                end
+
+                -- increment the food level
+                self.foodLevel = self.foodLevel + foodPerFeed
+
+                -- if the food level exceeds the maximum, kill the pigeon
+                if self.foodLevel > foodMaximum then
+                    self.currentState = state.dead
+                end
+
+            end,
+
+            isAlive = function(self)
+                if self.currentState == state.dead then
+                    return false
+                else
+                    return true
+                end
+
+            end,
+
+            selectNextAction = function(self)
+
+                local highestInfluence = 0
+                local highestInfluenceAction = 0
+
+                -- iterate through the influence table and store the action of the highest value
+                for action, influence in pairs(self.influenceTable) do
+                    print(ActionNames[action], " : ", influence)
+                    if influence > highestInfluence then
+                        highestInfluence = influence
+                        highestInfluenceAction = action
+                    end
+                end
+
+                print(ActionNames[highestInfluenceAction])
+                print(highestInfluence)
+
+                -- if the highest value is greater than the upper threshold then return that action
+                if highestInfluence >= pigeonInfluenceUpperThreshold then
+                    return highestInfluenceAction
+                end
+
+                -- create a table of actions and asign their percentage of being selected.
+                actionPotentials = {}
+                for _, action in pairs(Action) do
+                    actionPotentials[action] = 100
+                    if self.influenceTable[action] > pigeonInfluenceLowerThreshold then
+                        actionPotentials[action] = actionPotentials[action] + self.influenceTable[action]
+                    end
+                end
+
+                -- initialise influence table
+                for _, action in pairs(Action) do
+                    self.influenceTable[action] = 0
+                end
+
+                -- otherwise return a random action
+                return random_value(Action)
+            end,
+
+        }, {
+
+            -- operators
+
+        })
+
+        new_pigeon:initialise()
+        LevelEntites:addEntity(x, y, new_pigeon)
+        
+        return new_pigeon
+    end
 end

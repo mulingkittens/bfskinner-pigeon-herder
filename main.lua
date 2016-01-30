@@ -1,13 +1,16 @@
 require("src/variables")
 
-PigeonFactory = require("src/pigeon")
+PigeonFactoryFactory = require("src/pigeon")
 PenFactory = pcall(require, "src/pen") -- TODO
 LoadLevel = require("src/loader")
 LevelManager = require("src/levels/level_entities")
 Grass = require("src/levels/grass")
 Pit = require("src/levels/pit")
+Wall = require("src/levels/wall")
 
 local level = LevelManager()
+PigeonFactory = PigeonFactoryFactory(level)
+
 
 Game = {
     -- Screen configuration
@@ -42,7 +45,9 @@ Game = {
         default_constructors = setmetatable({
                 P = PigeonFactory,
                 S = Pit(level),
-               [" "] = Grass(level), 
+                [" "] = Grass(level), 
+                ["|"] = Wall(level),
+                ["-"] = Wall(level),
             },
             {
                 __index = function(self, idx)
@@ -135,7 +140,10 @@ function love.load(args)
         love.graphics.push()
         love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
         love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
-
+        
+        --draw the background 
+        Game.Level:draw()
+         
         --draw the feed radius if showing
         if feedRadiusShowingTimer > 0 then
             love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
@@ -145,17 +153,15 @@ function love.load(args)
         --love.graphics.setColor(0, 0, 0, 255)
         --love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
         --love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
-        local goodBatch = require("src/arena")
-        --Game.Level.spriteBatch = goodBatch
         
-        Game.Level:draw()
+       
         --print(Game.Level.spriteBatch:getCount())
         --love.graphics.draw(Game.Level.spriteBatch)
         --love.graphics.draw(require("src/arena"))
         -- draw pigeons
-        --[[--for i, pigeon in ipairs(Game.Pigeons) do
+        for i, pigeon in ipairs(Game.Pigeons) do
             pigeon:draw(Game, dt)
-        end--]]--
+        end
 
 
         --    love.graphics.setColor(_r, _g, _b, _a)

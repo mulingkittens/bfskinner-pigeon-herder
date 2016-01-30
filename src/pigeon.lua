@@ -7,7 +7,7 @@ state = {
     }
 
 function create_move_action(dx, dy)
-    return function(self, Game, dt)
+    return function(self, dt)
         new_x = self.x + dx * pigeonSpeed * dt
         new_y = self.y + dy * pigeonSpeed * dt
         new_rect = Rect(new_x, new_y, self.rect.w, self.rect.h)
@@ -98,7 +98,7 @@ return function(x, y)
         
     end,
     
-    update = function(self, Game, dt)
+    update = function(self, dt)
         
         -- if the pigeon has died return imediately
         if self.currentState == state.dead then     
@@ -106,10 +106,10 @@ return function(x, y)
         end
         
         -- decrement food level
-        self.foodLevel = self.foodLevel - foodDecrement
+        self.foodLevel = self.foodLevel - pigeonFoodDecrement
         if self.foodLevel <= 0 then
             self.foodLevel = 0
-        ends
+        end
         
         -- decrement all actions in the influence table
         for action in pairs(self.influenceTable) do
@@ -120,7 +120,7 @@ return function(x, y)
         end
 
         -- run the current action (unless it fails)
-        local failed = not self:action(Game, dt)
+        local failed = not self:action(dt)
 
         -- increment current action time
         self.currentActionTime = self.currentActionTime - dt
@@ -130,7 +130,7 @@ return function(x, y)
         end
     end,
     
-    draw = function(self, Game, dt)
+    draw = function(self, dt)
         
         -- draw pigeon
         local draw = function()
@@ -180,10 +180,10 @@ return function(x, y)
         end
         
         -- increment the food level
-        self.foodLevel = self.foodLevel + foodPerFeed
+        self.foodLevel = self.foodLevel + pigeonFoodPerFeed
         
         -- if the food level exceeds the maximum, kill the pigeon
-        if self.foodLevel > foodMaximum then
+        if self.foodLevel > pigeonFoodMaximum then
             self.currentState = state.dead
         end
     
@@ -205,15 +205,11 @@ return function(x, y)
     
         -- iterate through the influence table and store the action of the highest value
         for action, influence in pairs(self.influenceTable) do
-            print(ActionNames[action], " : ", influence)
             if influence > highestInfluence then
                 highestInfluence = influence
                 highestInfluenceAction = action
             end
         end
-        
-        print(ActionNames[highestInfluenceAction])
-        print(highestInfluence)
         
         -- if the highest value is greater than the upper threshold then return that action
         if highestInfluence >= pigeonInfluenceUpperThreshold then

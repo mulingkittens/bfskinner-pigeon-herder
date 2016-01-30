@@ -1,13 +1,17 @@
 -- game variables
 
+pigeonPenSpawnTime = 20
+pigeonPenSpawnTimerDecrement = 0.1
+
 pigeonFeedByRadius = true
 pigeonFeedRadius = 150
+pigeonFeedRadiusDisplayTime = 0.2
 
 pigeonSpeed = 50
 
-foodMaximum = 100
-foodPerFeed = 10
-foodDecrement = 0.1
+pigeonFoodMaximum = 100
+pigeonFoodPerFeed = 10
+pigeonFoodDecrement = 0.1
 
 pigeonInfluencePerClick = 20
 pigeonInfluenceMax = 100

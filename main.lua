@@ -2,6 +2,7 @@ require("src/variables")
 
 PigeonFactory = require("src/pigeon")
 PenFactory = pcall(require, "src/pen") -- TODO
+ObjectFactory = require("src/objects")
 LoadLevel = require("src/loader")
 
 Game = {
@@ -25,22 +26,34 @@ Game = {
   -- Sprites
   Sprites = {
     Pigeon = love.graphics.newImage('assets/pigeon.png'),
-    FeedRadius = love.graphics.newImage('assets/feed_radius.png')
+    FeedRadius = love.graphics.newImage('assets/feed_radius.png'),
+    Pen = love.graphics.newImage('assets/pen.png'),
+    Barrier = love.graphics.newImage('assets/barrier.png'),
+    Goal = love.graphics.newImage('assets/goal.png')
   },
 
-  -- All pigeons
+  -- Pigeons
   Pigeons = {},
+  
+  -- Obejcts
+  Objects = {},
+  
+  -- Level
   LevelGrid = false,
+  
+  -- TODO(Gordon): Integrate this with the level loader
+  --[[
   Objects = {
       default_constructors = setmetatable({
           P = PigeonFactory,
       },
       {
           __index = function(self, idx)
-              return rawget(self, idx) or function() --[[ do nothing]] end
+              return rawget(self, idx) or function() end
           end
       })
   }
+  ]]
 }
 
 Game.LevelGrid = LoadLevel("level_test")
@@ -54,55 +67,73 @@ feedRadiusX = 0
 feedRadiusY = 0
 
 function love.load(args)
-  -- Look for args
-  local fullscreen = false
-  local debug = false
-  for _, arg in ipairs(args) do
-    if arg == "fullscreen" then
-      fullscreen = true
-    elseif arg == "debug" then
-      debug = true
+    -- Look for args
+    local fullscreen = false
+    local debug = false
+    
+    for _, arg in ipairs(args) do
+        if arg == "fullscreen" then
+            fullscreen = true
+        elseif arg == "debug" then
+            debug = true
+        end
     end
-  end
 
-  -- Set window size
-  local flags = {
-    minwidth = 640,
-    minheight = 360,
-    fullscreen = arg.fullscreen or false,
-    vsync = true,
-    resizable = true,
-  }
-  if fullscreen then
-    flags.fullscreen = true
-    flags.fullscreentype = "desktop"
-  end
-  love.window.setMode(1280, 720, flags)
-
-  -- Set debug mode
-  if not debug then
-    Game.Debug = {}
-  end
-
-  -- Default background color
-  love.graphics.setBackgroundColor(255, 255, 255)
-
-    -- initialise pigeons
-    local pigeons = Game.Pigeons
-    for i = 1, 10 do
-      pigeons[#pigeons + 1] = PigeonFactory(i * 50, i * 50)
+    -- Set window size
+    local flags = {
+        minwidth = 640,
+        minheight = 360,
+        fullscreen = arg.fullscreen or false,
+        vsync = true,
+        resizable = true,
+    }
+  
+    if fullscreen then
+        flags.fullscreen = true
+        flags.fullscreentype = "desktop"
     end
+  
+    -- Set window dimensions and mode
+    love.window.setMode(1280, 720, flags)
+
+    -- Set debug mode
+    if not debug then
+        Game.Debug = {}
+    end
+
+    -- Default background color
+    love.graphics.setBackgroundColor(255, 255, 255)
+
+    -- Initialise level objects
+    local objects = Game.Objects
+    objects[#objects + 1] = ObjectFactory.create_pen(50, 550, 3)
+    
 end
 
 function love.update(dt)
-  -- Update the screen scale to match the window
-  Game.Screen.scale = love.graphics.getWidth() / Game.Screen.width
-  Game.Screen.offset_x = (love.graphics.getWidth() - (Game.Screen.width * Game.Screen.scale)) / 2
-  Game.Screen.offset_y = (love.graphics.getHeight() - (Game.Screen.height * Game.Screen.scale)) / 2
+    
+    -- Update the screen scale to match the window
+    Game.Screen.scale = love.graphics.getWidth() / Game.Screen.width
+    Game.Screen.offset_x = (love.graphics.getWidth() - (Game.Screen.width * Game.Screen.scale)) / 2
+    Game.Screen.offset_y = (love.graphics.getHeight() - (Game.Screen.height * Game.Screen.scale)) / 2
+
+    -- Update objects
+    for i, object in ipairs(Game.Objects) do
+        object:update(dt)
+    
+        -- Spaw pigeons from pen objects
+        if tostring(object) == "pen" then
+            local pigeons = Game.Pigeons
+            newPigeon = object:spawn_pigeon()
+            if newPigeon then
+                pigeons[#pigeons + 1] = newPigeon
+            end
+        end
+    end
 
     -- update pigeons
     for i, pigeon in ipairs(Game.Pigeons) do
-      pigeon:update(Game, dt)
+        pigeon:update(dt)
     end
     
     -- decrement the feed radius timer
@@ -122,9 +153,14 @@ function love.draw(dt)
         love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
     end
 
+    -- Draw objects
+    for i, object in ipairs(Game.Objects) do
+      object:draw(dt)
+    end
+
     -- draw pigeons
     for i, pigeon in ipairs(Game.Pigeons) do
-      pigeon:draw(Game, dt)
+      pigeon:draw(dt)
     end
     --love.graphics.draw(blah)
 
@@ -166,9 +202,9 @@ function love.mousepressed(x, y, button, istouch)
                 pigeon:feed()
                 
                 -- add the feed radius display
-                feedRadiusShowingTimer = 0.2
-                feedRadiusX = mouseX - 75
-                feedRadiusY = mouseY - 75
+                feedRadiusShowingTimer = pigeonFeedRadiusDisplayTime
+                feedRadiusX = mouseX - (pigeonFeedRadius / 2)
+                feedRadiusY = mouseY - (pigeonFeedRadius / 2)
             
             end
         

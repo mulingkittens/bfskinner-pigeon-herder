@@ -5,7 +5,7 @@ test_y = 0
 test_vx = 50
 test_vy = 50
 
-pigeonFactory = require("pigeon")
+pigeonFactory = require("src/pigeon")
 
 local pigeonList = {}
 

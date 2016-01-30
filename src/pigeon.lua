@@ -1,4 +1,4 @@
-pigeonSprite = love.graphics.newImage('pigeon.png')
+pigeonSprite = love.graphics.newImage('src/pigeon.png')
 
 return function(xPos, yPos)
 
@@ -8,7 +8,7 @@ return function(xPos, yPos)
     m_yPos = yPos,
     m_food = 0,
     
-    update = function(dt)
+    update = function(self, dt)
       
       -- update  
       

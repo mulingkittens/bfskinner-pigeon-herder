@@ -11,7 +11,7 @@ state = {
 function create_move_action(dx, dy)
     return function(pigeon, dt)
         new_x = pigeon.x + dx * pigeonSpeed * dt
-        new_y = pigeon.x + dy * pigeonSpeed * dt
+        new_y = pigeon.y + dy * pigeonSpeed * dt
         -- TODO - check that new_x and new_y don't cause collisions or hit the edge
         -- return false if we can't move
         pigeon.x = new_x
@@ -21,7 +21,6 @@ function create_move_action(dx, dy)
 end
 
 Action = {}
-ActionNames = {}
 
 Action.think = function(self, dt)
     -- Pick a random action to do
@@ -29,40 +28,22 @@ Action.think = function(self, dt)
     self.action = self:selectNextAction()
     self.currentActionTime = 2
 end
-ActionNames[Action.think] = "think"
-
 Action.move_up = create_move_action(0, -1)
-ActionNames[Action.move_up] = "move_up"
-
 Action.move_down = create_move_action(0, 1)
-ActionNames[Action.move_down] = "move_down"
-
 Action.move_left = create_move_action(-1, 0)
-ActionNames[Action.move_left] = "move_left"
-
 Action.move_right = create_move_action(1, -0)
-ActionNames[Action.move_right] = "move_right"
-
 Action.move_up_left = create_move_action(-1, -1)
-ActionNames[Action.move_up_left] = "move_up_left"
-
 Action.move_up_right = create_move_action(1, -1)
-ActionNames[Action.move_up_right] = "move_up_right"
-
 Action.move_down_left = create_move_action(-1, 1)
-ActionNames[Action.move_down_left] = "move_down_left"
-
 Action.move_down_right = create_move_action(1, 1)
-ActionNames[Action.move_down_right] = "move_down_right"
 
 Action.peck = function(self, dt)
 end
-ActionNames[Action.peck] = "peck"
 
 Action.flap = function(self, dt)
 end
-ActionNames[Action.flap] = "flap"
 
+ActionNames = table_key_index(Action)
 ActionChoices = table_index(Action)
 
 

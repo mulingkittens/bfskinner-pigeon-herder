@@ -20,7 +20,8 @@ Game = {
 
   -- Sprites
   Sprites = {
-    Pigeon = love.graphics.newImage('assets/pigeon.png')
+    Pigeon = love.graphics.newImage('assets/pigeon.png'),
+    FeedRadius = love.graphics.newImage('assets/feed_radius.png')
   },
 
   -- All pigeons
@@ -36,6 +37,10 @@ Game = {
 
 PigeonFactory = require("src/pigeon")
 --blah = require("src/arena")
+
+feedRadiusShowingTimer = 0
+feedRadiusX = 0
+feedRadiusY = 0
 
 function love.load(args)
   -- Look for args
@@ -89,12 +94,23 @@ function love.update(dt)
     for i, pigeon in ipairs(Game.Pigeons) do
       pigeon:update(Game, dt)
     end
+    
+    -- decrement the feed radius timer
+    feedRadiusShowingTimer = feedRadiusShowingTimer - dt;
+    if feedRadiusShowingTimer <= 0 then
+        feedRadiusShowingTimer = 0
+    end
 end
 
 function love.draw(dt)
-  love.graphics.push()
-  love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
-  love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
+    love.graphics.push()
+    love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
+    love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
+
+    --draw the feed radius if showing
+    if feedRadiusShowingTimer > 0 then
+        love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
+    end
 
     -- draw pigeons
     for i, pigeon in ipairs(Game.Pigeons) do
@@ -115,7 +131,7 @@ function love.mousepressed(x, y, button, istouch)
   -- Convert coordinates into game space
     local mouseX = x / Game.Screen.scale
     local mouseY = y / Game.Screen.scale
-
+    
     local pigeonWidth = Game.Sprites.Pigeon:getWidth()
     local pigeonHeight = Game.Sprites.Pigeon:getHeight()
 
@@ -141,6 +157,10 @@ function love.mousepressed(x, y, button, istouch)
             
                 -- feed the pigeon
                 pigeon:feed()
+                
+                feedRadiusShowingTimer = 10
+                feedRadiusX = mouseX - 75
+                feedRadiusY = mouseY - 75
             
             end
         
@@ -164,7 +184,3 @@ function love.mousepressed(x, y, button, istouch)
   --   x - pigeonWidth / 2,
   --  y - Game.Sprites.Pigeon:getHeight() / 2)
 end
-
-
-
-function math.dist(x1,y1, x2,y2) return ((x2-x1)^2+(y2-y1)^2)^0.5 end

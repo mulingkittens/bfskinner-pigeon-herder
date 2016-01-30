@@ -83,8 +83,6 @@ end
 
 function love.draw(dt)
   love.graphics.push()
-  local _r, _g, _b, _a = love.graphics.getColor()
-  love.graphics.setColor(0, 0, 0, 255)
   love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
   love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
 
@@ -94,7 +92,6 @@ function love.draw(dt)
     end
     --love.graphics.draw(blah)
 
-  love.graphics.setColor(_r, _g, _b, _a)
   love.graphics.pop()
 end
 

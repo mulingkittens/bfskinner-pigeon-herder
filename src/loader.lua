@@ -29,6 +29,7 @@ The following items are predefined and can be overriden:
     *: Whirling blades of death. Fuck you again.
 ]]
 
+
 local function parse_map(map_s)
     -- given a map string `map_s` parse as a multidimensional array
     -- with the origin at the top-left.
@@ -68,7 +69,6 @@ local function load_level_file(level_name, fs)
 end
 
 
-
 local function construct_level(level_cfg, map_grid)
     local default_constructors = Game.Objects.default_constructors
     level_cfg.constructors = level_cfg.constructors or default_constructors
@@ -78,6 +78,8 @@ local function construct_level(level_cfg, map_grid)
         for y, char in ipairs(row) do
             if level_cfg.constructors[char] then
                 level[x][y] = level_cfg.constructors[char](x, y, default_constructors)
+            else
+                level[x][y] = default_constructors[char](x, y)
             end
         end
     end

@@ -6,6 +6,7 @@ test_vx = 50
 test_vy = 50
 
 pigeonFactory = require("src/pigeon")
+--blah = require("src/arena")
 
 local pigeonList = {}
 
@@ -39,5 +40,6 @@ function love.draw(dt)
     for i, pigeon in ipairs(pigeonList) do
       pigeon:draw(dt)
     end
+    --love.graphics.draw(blah)
 end
 

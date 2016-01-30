@@ -1,6 +1,9 @@
 require("src/variables")
 
 PigeonFactory = require("src/pigeon")
+PenFactory = pcall(require, "src/pen") -- TODO
+LoadLevel = require("src/loader")
+
 Game = {
   -- Screen configuration
   Screen = {
@@ -27,8 +30,9 @@ Game = {
 
   -- All pigeons
   Pigeons = {},
-  LevelGrid = {},
+  LevelGrid = false,
   Level = {},
+  
   Objects = {
       default_constructors = setmetatable({
           P = PigeonFactory,
@@ -41,6 +45,11 @@ Game = {
     }
 }
 
+--LoadLevel requires Game in scope
+Game.LevelGrid = LoadLevel("level_test")
+for k, v in pairs(Game.LevelGrid) do
+    print(k, v, "::::::::")
+end
 --blah = require("src/arena")
 
 feedRadiusShowingTimer = 0

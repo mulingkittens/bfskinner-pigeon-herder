@@ -221,7 +221,7 @@ return function(x, y)
             end
 
             -- create a table of actions and asign their percentage of being selected.
-            actionPotentials = {}
+            local actionPotentials = {}
             for _, action in pairs(Action) do
                 actionPotentials[action] = 100
                 if self.influenceTable[action] > pigeonInfluenceLowerThreshold then

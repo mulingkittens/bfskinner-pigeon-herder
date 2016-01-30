@@ -2,6 +2,9 @@ require("src/util")
 pigeonSprite = love.graphics.newImage('src/pigeon.png')
 pigeonSpeed = 50;
 
+debug_draw_actions = true
+debug_draw_bounding_boxes = true
+
 state = {
     alive = 0,
     dying = 1,
@@ -9,24 +12,40 @@ state = {
     }
 
 function create_move_action(dx, dy)
-    return function(pigeon, dt)
-        new_x = pigeon.x + dx * pigeonSpeed * dt
-        new_y = pigeon.y + dy * pigeonSpeed * dt
-        -- TODO - check that new_x and new_y don't cause collisions or hit the edge
-        -- return false if we can't move
-        pigeon.x = new_x
-        pigeon.y = new_y
+    return function(self, dt, all_pigeons)
+        new_x = self.x + dx * pigeonSpeed * dt
+        new_y = self.y + dy * pigeonSpeed * dt
+        new_rect = Rect(new_x, new_y, self.rect.w, self.rect.h)
+
+        -- Fail if the pigeon wants to move off the screen
+        screen_rect = Rect(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        if not screen_rect:contains(new_rect) then
+            return false
+        end
+        -- Fail if the pigeon wants to move into another pigeon
+        for _, other_pigeon in ipairs(all_pigeons) do
+            if self ~= other_pigeon then
+                if other_pigeon.rect:intersects(new_rect) then
+                    return false
+                end
+            end
+        end
+        -- Looks like we won't hit anything
+        self.x = new_x
+        self.y = new_y
+        self.rect = new_rect
         return true
     end
 end
 
 Action = {}
 
-Action.think = function(self, dt)
+Action.think = function(self, dt, other_pigeons)
     -- Pick a random action to do
     
     self.action = self:selectNextAction()
     self.currentActionTime = 2
+    return true
 end
 Action.move_up = create_move_action(0, -1)
 Action.move_down = create_move_action(0, 1)
@@ -37,10 +56,12 @@ Action.move_up_right = create_move_action(1, -1)
 Action.move_down_left = create_move_action(-1, 1)
 Action.move_down_right = create_move_action(1, 1)
 
-Action.peck = function(self, dt)
+Action.peck = function(self, dt, other_pigeons)
+    return true
 end
 
-Action.flap = function(self, dt)
+Action.flap = function(self, dt, other_pigeons)
+    return true
 end
 
 ActionNames = table_key_index(Action)
@@ -62,7 +83,9 @@ return function(x, y)
     influenceThreshold = 50,
     
     initialise = function(self, dt)
-        
+        -- bounding box
+        self.rect = Rect(self.x, self.y, pigeonSprite:getWidth(), pigeonSprite:getHeight())
+
         -- initialise influence table
         for _, action in pairs(Action) do
             self.influenceTable[action] = 0
@@ -70,7 +93,7 @@ return function(x, y)
         
     end,
     
-    update = function(self, dt)
+    update = function(self, dt, other_pigeons)
         
         -- if the pigeon has died return imediately
         if self.currentState == state.dead then     
@@ -80,41 +103,37 @@ return function(x, y)
         -- decrement food level
         self.foodLevel = self.foodLevel - 1
 
-        -- run the current action
-        self:action(dt)
-        
+        -- run the current action (unless it fails)
+        local failed = not self:action(dt, other_pigeons)
+
         -- increment current action time
         self.currentActionTime = self.currentActionTime - dt
-        if self.currentActionTime <= 0 then
+        if failed or self.currentActionTime <= 0 then
             self.action = Action.think
             self.currentActionTime = 0
         end
-        -- fix position to be within the bouinds of the level
-        if self.x <= 50 then
-            self.x = 50
-        end
-        if self.y <= 50 then
-            self.y = 50
-        end
-        if self.x >= 550 then
-            self.x = 550
-        end
-        if self.y >= 550 then
-            self.y = 550
-        end
-    
     end,
     
     draw = function(self, dt)
         
         -- draw pigeon
         love.graphics.draw(pigeonSprite, self.x, self.y)
-        
+
         -- debug output
-        local action_name = ActionNames[self.action]
-        love.graphics.print(tostring(action_name), self.x - 10, self.y - 20)
-        love.graphics.print(tostring(self.currentActionTime), self.x + 10, self.y - 20)
-      
+        if debug_draw_actions then
+            local r, g, b, a = love.graphics.getColor()
+            love.graphics.setColor(255, 255, 255, 255)
+            local action_name = ActionNames[self.action]
+            local action_time = string.format('%0.1f', self.currentActionTime)
+            love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
+            love.graphics.setColor(r, g, b, a)
+        end
+        if debug_draw_bounding_boxes then
+            local r, g, b, a = love.graphics.getColor()
+            love.graphics.setColor(255, 0, 0, 255)
+            love.graphics.rectangle('line', self.rect.x, self.rect.y, self.rect.w, self.rect.h)
+            love.graphics.setColor(r, g, b, a)
+        end
     end,
     
     feed = function(self, value)

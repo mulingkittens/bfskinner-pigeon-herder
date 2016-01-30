@@ -31,7 +31,7 @@ function love.update(dt)
     
     -- update pigeons
     for i, pigeon in ipairs(pigeonList) do
-      pigeon:update(dt)
+      pigeon:update(dt, pigeonList)
     end
 end
 

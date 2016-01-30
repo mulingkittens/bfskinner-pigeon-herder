@@ -27,6 +27,12 @@ create_pen = function(x, y, numPigeons)
         
         end,
     
+        get_occlusion_block = function(self)
+        
+            return Rect(self.x, self.y + 150, 150, 50)
+        
+        end,
+    
         spawn_pigeon = function(self)
             
             if (self.spawnTimer == 0) and (self.numPigeons > 0) then

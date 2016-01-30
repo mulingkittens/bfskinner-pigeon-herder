@@ -36,7 +36,9 @@ local function parse_map(map_s)
     local lines = {}
     local grid = {}
     nonempty = false
+    print(map_s)
     map_s:gsub('(.-)\r?\n', function(line)
+        print(line)
         if nonempty or line:find("[^%S]") then
             nonempty = true
             lines[#lines + 1] = line
@@ -46,6 +48,7 @@ local function parse_map(map_s)
         local t = {}
         grid[i] = t
         for char in line:gmatch("(.)") do
+            print("parsing..", #t, char)
             t[#t + 1] = char
         end
     end
@@ -76,6 +79,7 @@ local function construct_level(level_cfg, map_grid)
     for x, row in ipairs(map_grid) do
         level[x] = {}
         for y, char in ipairs(row) do
+            
             if level_cfg.constructors[char] then
                 level[x][y] = level_cfg.constructors[char](x, y, default_constructors)
             else

@@ -51,7 +51,7 @@ Game = {
             },
             {
                 __index = function(self, idx)
-                    return rawget(self, idx) or function() --[[ do nothing]] end
+                    return rawget(self, idx) or function()  end
                 end
         })
     }

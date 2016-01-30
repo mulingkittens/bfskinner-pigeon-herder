@@ -16,10 +16,8 @@
    --------------
 
 For each square on the grid in the map, The given ASCII character is looked up in the engine's `map_items` module, and indexed for the given character.
-
-If the given character's key exists in the table it is called with the tuple (x, y, existing_constructors) of the given character's arguments.
-
-The found function is expected to return a new Game object with is the placed on the grid
+If the given character's key exists in the table its value (any callable) is called with the tuple (x, y, existing_constructors).
+The called function is expected to return a new Game object which is the placed on a new grid at the same coordinate
 
 The following items are predefined and can be overriden:
 
@@ -28,8 +26,6 @@ The following items are predefined and can be overriden:
     O: Pit. Probably bottomless. Fuck you.
     $: Powerup. A steaming hot babe with huge money.
     *: Whirling blades of death. Fuck you again.
-
-
 ]]
 
 local function parse_map(map_s)
@@ -47,7 +43,7 @@ local function parse_map(map_s)
 end
 
 
-local function load_level(level_name)
+local function load_level_file(level_name)
     -- load a level file and return a level object which contains the raw
     -- lua chunk
     local fs = love.filesystem
@@ -70,12 +66,12 @@ local function construct_level(level_cfg, map_grid, default_constructors)
             level[x][y] = success and obj or level_cfg.objects.default
         end
     end
+    return level
 end
 
 
 return function(game_ctx, level_name)
-
-    local level_cfg = load_level(level_name)
+    local level_cfg = load_level_file(level_name)
     local map_grid = parse_map(level_cfg.map)
     return construct_level(level_cfg, map_grid, game_ctx.objects.default_constructors)
 end

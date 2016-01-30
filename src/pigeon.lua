@@ -153,7 +153,7 @@ return function(x, y)
         end
         
         -- increment the food level
-        self.foodLevel = self.foodLevel + fooPerFeed
+        self.foodLevel = self.foodLevel + foodPerFeed
         
         -- if the food level exceeds the maximum, kill the pigeon
         if self.foodLevel > foodMaximum then

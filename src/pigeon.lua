@@ -49,8 +49,6 @@ return function(xPos, yPos)
             return
         end
         
-        debug.debug()
-        
         -- decrement food level
         self.foodLevel = self.foodLevel - 1
         

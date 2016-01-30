@@ -18,14 +18,25 @@ local function create_move_action(dx, dy)
         if not screen_rect:contains(new_rect) then
             return false
         end
+        
         -- Fail if the pigeon wants to move into another pigeon
         for _, other_pigeon in ipairs(Game.Pigeons) do
             if self ~= other_pigeon then
                 if other_pigeon.rect:intersects(new_rect) then
+                    print("Hit Pigeon")
                     return false
                 end
             end
         end
+        
+        -- Fail if the pigeon wants to move into an object
+        for _, object in ipairs(Game.Objects) do
+            if object:get_occlusion_block():intersects(new_rect) then
+                print("Hit Object")
+                return false
+            end
+        end
+        
         -- Looks like we won't hit anything
         self.x = new_x
         self.y = new_y

@@ -29,7 +29,7 @@ create_pen = function(x, y, numPigeons)
     
         get_occlusion_block = function(self)
         
-            return Rect(self.x, self.y + 150, 150, 50)
+            return Rect(self.x, self.y + 100, 150, 50)
         
         end,
     
@@ -81,7 +81,13 @@ create_barrier = function(x, y)
         
             love.graphics.draw(Game.Sprites.Barrier, self.x, self.y)
         
-        end
+        end,
+    
+        get_occlusion_block = function(self)
+        
+            return Rect(self.x, self.y, 150, 150)
+        
+        end,
         
     }, {
 

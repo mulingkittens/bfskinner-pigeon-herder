@@ -107,6 +107,9 @@ function love.load(args)
     -- Initialise level objects
     local objects = Game.Objects
     objects[#objects + 1] = ObjectFactory.create_pen(50, 550, 3)
+    objects[#objects + 1] = ObjectFactory.create_barrier(50, 50)
+    objects[#objects + 1] = ObjectFactory.create_barrier(400, 250)
+    objects[#objects + 1] = ObjectFactory.create_barrier(300, 600)
     
 end
     

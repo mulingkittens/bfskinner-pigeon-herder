@@ -56,33 +56,40 @@ local function load_level_file(level_name, fs)
     -- load a level file and return a level object which contains the raw
     -- lua chunk
     local fs = fs or love and love.filesystem or nil
+    print(fs)
     local predefined = predefined or {}
-    local success, chunk = pcall(fs.load, level_name)
+    local path = "assets/levels/" .. level_name .. ".lua"
+    local success, chunk = pcall(fs.load, path)
 
-    if not success then return success, chunk end
+    if not success then return false, "Couldn't load " .. path end
+    print("success", success, chunk)
 
-    return pcall(chunk)
+    return chunk()
 end
 
 
 
 local function construct_level(level_cfg, map_grid)
-    local default_constructors = Game.objects.default_constructors
+    local default_constructors = Game.Objects.default_constructors
     level_cfg.constructors = level_cfg.constructors or default_constructors
     local level = {}
     for x, row in ipairs(map_grid) do
         level[x] = {}
         for y, char in ipairs(row) do
-            local success, obj = pcall(level_cfg.constructors, x, y, default_constructors)
-            level[x][y] = success and obj or level_cfg.objects.default
+            if level_cfg.constructors[char] then
+                level[x][y] = level_cfg.constructors[char](x, y, default_constructors)
+            end
         end
     end
     return level
 end
 
 
-return function(game_ctx, level_name)
+return function(level_name)
     local level_cfg = load_level_file(level_name)
+    print("89", success, level_cfg)
+    print("WHAT", level_cfg)
+    for k, v in pairs(level_cfg) do print(k, v) end
     local map_grid = parse_map(level_cfg.map)
     return construct_level(level_cfg, map_grid)
 end

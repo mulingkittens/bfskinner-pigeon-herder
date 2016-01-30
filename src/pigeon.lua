@@ -69,7 +69,7 @@ ActionChoices = table_index(Action)
 
 return function(x, y)
 
-    return setmetatable({
+    local new_pigeon = setmetatable({
     
     currentState = state.alive,
     action = Action.think,
@@ -192,4 +192,6 @@ return function(x, y)
 
   })
 
+  new_pigeon:initialise()
+  return new_pigeon
 end

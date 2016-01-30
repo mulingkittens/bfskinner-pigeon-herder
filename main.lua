@@ -19,7 +19,7 @@ Game = {
   Pigeons = {},
 }
 
-pigeonFactory = require("src/pigeon")
+PigeonFactory = require("src/pigeon")
 --blah = require("src/arena")
 
 function love.load(arg)
@@ -39,8 +39,7 @@ function love.load(arg)
     -- initialise pigeons
     local pigeons = Game.Pigeons
     for i = 1, 5 do
-      pigeons[#pigeons + 1] = pigeonFactory(i * 50, i * 50)
-      pigeons[#pigeons]:initialise()
+      pigeons[#pigeons + 1] = PigeonFactory(i * 50, i * 50)
     end
 end
 
@@ -73,3 +72,14 @@ function love.draw(dt)
   love.graphics.pop()
 end
 
+function love.mousepressed(x, y, button, istouch)
+  -- Convert coordinates into game space
+  x = x / Game.Screen.scale
+  y = y / Game.Screen.scale
+
+  -- Spawn a new pigeon there
+  local pigeons = Game.Pigeons
+  pigeons[#pigeons + 1] = PigeonFactory(
+    x - Game.Sprites.Pigeon:getWidth() / 2,
+    y - Game.Sprites.Pigeon:getHeight() / 2)
+end

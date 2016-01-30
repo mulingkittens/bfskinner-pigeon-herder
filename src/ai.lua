@@ -45,10 +45,20 @@ afterwards:
     decay all weights
 ]]
 
+require("src/util")
+
 
 function pattern_noise()
     -- Have to multiply and divide by 1000, because love.math.random works with ints
     return (love.math.random(-0.05 * 1000, 0.05 * 1000) / 1000)
+end
+
+function reinforce_weak(weight)
+    return math.min(math.max(0.01, weight + 0.05), 1.0)
+end
+
+function reinforce_strong(weight)
+    return math.min(math.max(0.01, weight + 0.2), 1.0)
 end
 
 
@@ -57,8 +67,8 @@ ai = {
     patterns = {},
     -- History of recent actions (for forming patterns)
     action_history = {},
-    -- Key or index of the current pattern (so we can reinforce it)
-    active_pattern = nil,
+    -- Name of the current pattern (so we can reinforce it)
+    active_pattern_name = nil,
     -- Consume actions off the start of this table. When empty, 
     active_pattern_actions = {},
 
@@ -68,11 +78,7 @@ ai = {
             -- Should phase out Action.think, cause it's not an action, it's the selection
             if name ~= 'think' then
                 -- Short patterns are single behaviours
-                self.patterns[name] = {
-                    length = 1,
-                    actions = {action},
-                    weight = math.abs(pattern_noise()),
-                }
+                self:add_pattern({action}, name)
                 -- Long patterns will be added as food events occur
             end
         end
@@ -82,9 +88,20 @@ ai = {
         end
     end,
 
+    add_pattern = function(self, actions, name)
+        -- TODO - remove the weakest pattern when we have >= 4
+        name = name or (#self.patterns + 1)
+        self.patterns[name] = {
+            length = #actions,
+            actions = actions,
+            weight = math.abs(pattern_noise()),
+        }
+        return name
+    end,
+
     select_best_pattern = function(self)
         -- Select the strongest long pattern that's strong enough to recall
-        minimum_long_pattern_weight = 0.3
+        minimum_long_pattern_weight = 0.05
         strongest_pattern_name = nil
         strongest_weight = 0
         for name, pattern in pairs(self.patterns) do
@@ -123,7 +140,44 @@ ai = {
     end,
 
     finish_current_action = function(self)
+        local action = self:get_current_action()
         table.remove(self.active_pattern_actions, 1)
+        -- TODO  don't add think to history
+        self.action_history[#self.action_history + 1] = action
+        if #self.action_history > 5 then
+            table.remove(self.action_history, 1)
+        end
+    end,
+
+    reinforce_current_pattern = function(self)
+        -- Reinforce the current pattern
+        local pattern = self.patterns[self.active_pattern_name]
+        if pattern.length > 1 then
+            -- Strongly if it's a long pattern
+            pattern.weight = reinforce_strong(pattern.weight)
+        else
+            -- Otherwise form a weak pattern if we can
+            local history_length = #self.action_history
+            if history_length > 2 then
+                local length = love.math.random(2, 5)
+                length = math.min(length, history_length)
+                local actions = {}
+                for i = history_length - length, history_length do
+                    actions[#actions + 1] = self.action_history[i]
+                end
+                local name = self:add_pattern(actions)
+                local pattern = self.patterns[name]
+                pattern.weight = reinforce_weak(pattern.weight)
+            end
+        end
+        -- Reinforce the short pattern for the current action weakly
+        local current_action = self:get_current_action()
+        local current_action_name = ActionNames[current_action]
+        if current_action_name ~= 'think' then
+            local current_action_pattern = self.patterns[current_action_name]
+            print(current_action, current_action_name, current_action_pattern)
+            current_action_pattern.weight = reinforce_weak(current_action_pattern.weight)
+        end
     end,
 
     perturb_patterns = function(self)
@@ -148,7 +202,7 @@ Action = {
     skip = 'skip',
     jump = 'jump',
 }
-
+ActionNames = table_key_index(Action)
 
 ----------------------------------
 
@@ -167,6 +221,10 @@ for i = 1,30 do
         action = ai:get_current_action()
     end
     print('action:', action)
+    if love.math.random(1, 10) <= 2 then
+        print 'REINFORCING'
+        ai:reinforce_current_pattern()
+    end
     ai:finish_current_action()
 
     ai:perturb_patterns()

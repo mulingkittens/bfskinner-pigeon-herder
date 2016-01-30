@@ -12,7 +12,8 @@ local pigeonList = {}
 function love.load(arg)
     -- initialise pigeons
     for i = 1, 5 do
-      pigeonList[#pigeonList+1] = pigeonFactory(i * 50, i * 50)
+      pigeonList[#pigeonList + 1] = pigeonFactory(i * 50, i * 50)
+      pigeonList[#pigeonList]:initialise()
     end
 end
 

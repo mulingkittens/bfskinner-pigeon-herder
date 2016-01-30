@@ -1,36 +1,63 @@
 pigeonSprite = love.graphics.newImage('src/pigeon.png')
 
+state = {
+    alive = 0,
+    dying = 1,
+    dead = 2
+    }
+
 action = {
     none = 0,
-    move = 1,
-    turn_left = 2,
-    turn_right = 3,
-    peck = 4,
-    flap = 5,
+    move_up = 1,
+    move_down = 2,
+    move_left = 3,
+    move_right = 4,
+    move_up_left = 5,
+    move_up_right = 6,
+    move_down_left = 7,
+    move_down_right = 8,
+    peck = 9,
+    flap = 10,
     }
 
 return function(xPos, yPos)
 
     return setmetatable({
     
+    currentState = state.alive,
     currentAction = action.none,
+    currentActionTime = 0,
     xPos = xPos,
     yPos = yPos,
-    isAlive = true,
     foodLevel = 0,
     foodMaximum = 100,
+    influenceTable = {},
+    
+    initialise = function(self, dt)
+        
+        -- initialise influence table
+        for k in pairs(action) do
+            self.influenceTable[k] = 0
+        end
+        
+    end,
     
     update = function(self, dt)
         
         -- if the pigeon has died return imediately
-        if self.isAlive == false then
-            
+        if self.currentState == state.alive then     
             return
-        
         end
         
-        -- decrement foo level
+        -- decrement food level
         self.foodLevel = self.foodLevel - 1
+        
+        -- increment current action time
+        self.currentActionTime = self.currentActionTime - dt
+        if self.currentActionTime <= 0 then
+            self.currentAction = action.none
+            self.currentActionTime = 0
+        end
         
         -- perform relative functionality for current action
         local currentAction = self.currentAction
@@ -38,18 +65,34 @@ return function(xPos, yPos)
         local switch = ({
             [action.none] = function()
                 -- if pigeon has no action, assign one
-                if action == action.none then
-                    action = math.floor((math.random() * 4) + 1)
+                if self.currentAction == action.none then
+                    self.currentAction = math.floor((math.random() * 5) + 1)
+                    self.currentActionTime = 10
                 end
             end,
-            [action.move] = function()
-                -- move
+            [action.move_up] = function()
+                -- move_up
             end,
-            [action.turn_left] = function()
-                -- turn_left
+            [action.move_down] = function()
+                -- move_down
             end,
-            [action.turn_right] = function()
-                -- turn_right
+            [action.move_left] = function()
+                -- move_left
+            end,
+            [action.move_right] = function()
+                -- move_right
+            end,
+            [action.move_up_left] = function()
+                -- move_up_left
+            end,
+            [action.move_up_right] = function()
+                -- move_up_right
+            end,
+            [action.move_down_left] = function()
+                -- move_down_left
+            end,
+            [action.move_down_right] = function()
+                -- move_down_right
             end,
             [action.peck] = function()
                 -- peck
@@ -67,6 +110,10 @@ return function(xPos, yPos)
         
         -- draw pigeon
         love.graphics.draw(pigeonSprite, self.xPos, self.yPos)
+        
+        -- debug output
+        love.graphics.print(tostring(self.currentAction), self.xPos - 10, self.yPos - 20)
+        love.graphics.print(tostring(self.currentActionTime), self.xPos + 10, self.yPos - 20)
       
     end,
     
@@ -77,16 +124,17 @@ return function(xPos, yPos)
         
         -- if the food level exceeds the maximum, kill the pigeon
         if foodLevel > fooMaximum then
-        
-            self.isAlive = false
-            
+            self.currentState = state.dead
         end
     
     end,
     
     isAlive = function(self)
-        
-        return isAlive
+        if self.currentState == state.dead then
+            return false    
+        else
+            return true
+        end
         
     end,
     

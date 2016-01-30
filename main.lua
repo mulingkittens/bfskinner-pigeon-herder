@@ -10,6 +10,12 @@ Game = {
     offset_y = 0,
   },
 
+  -- Debug mode (options are ignored unless "debug" argument is given on command line)
+  Debug = {
+    draw_actions = true,
+    draw_bounding_boxes = true,
+  },
+
   -- Sprites
   Sprites = {
     Pigeon = love.graphics.newImage('assets/pigeon.png')
@@ -22,16 +28,36 @@ Game = {
 PigeonFactory = require("src/pigeon")
 --blah = require("src/arena")
 
-function love.load(arg)
+function love.load(args)
+  -- Look for args
+  local fullscreen = false
+  local debug = false
+  for _, arg in ipairs(args) do
+    if arg == "fullscreen" then
+      fullscreen = true
+    elseif arg == "debug" then
+      debug = true
+    end
+  end
+
   -- Set window size
-  love.window.setMode(1280, 720, {
+  local flags = {
     minwidth = 640,
     minheight = 360,
-    -- fullscreen = true,
-    -- fullscreentype = "desktop",
+    fullscreen = arg.fullscreen or false,
     vsync = true,
     resizable = true,
-  })
+  }
+  if fullscreen then
+    flags.fullscreen = true
+    flags.fullscreentype = "desktop"
+  end
+  love.window.setMode(1280, 720, flags)
+
+  -- Set debug mode
+  if not debug then
+    Game.Debug = {}
+  end
 
   -- Default background color
   love.graphics.setBackgroundColor(255, 255, 255)

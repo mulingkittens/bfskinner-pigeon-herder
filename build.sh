@@ -20,5 +20,9 @@ project_dir() {
 
 cd "$(project_dir)/src"
 
-zip -r ../game.love *
-"$LOVE" ../game.love
+## To build a zip
+# zip -r ../game.love *
+# "$LOVE" ../game.love "$@"
+
+# But we just run from source instead
+"$LOVE" . "$@"

@@ -1,9 +1,6 @@
 require("src/util")
 pigeonSpeed = 50;
 
-debug_draw_actions = true
-debug_draw_bounding_boxes = true
-
 state = {
     alive = 0,
     dying = 1,
@@ -119,7 +116,7 @@ return function(x, y)
         love.graphics.draw(Game.Sprites.Pigeon, self.x, self.y)
 
         -- debug output
-        if debug_draw_actions then
+        if Game.Debug.draw_actions then
             local r, g, b, a = love.graphics.getColor()
             love.graphics.setColor(0, 0, 0, 255)
             local action_name = ActionNames[self.action]
@@ -127,7 +124,7 @@ return function(x, y)
             love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
             love.graphics.setColor(r, g, b, a)
         end
-        if debug_draw_bounding_boxes then
+        if Game.Debug.draw_bounding_boxes then
             local r, g, b, a = love.graphics.getColor()
             love.graphics.setColor(255, 0, 0, 255)
             love.graphics.rectangle('line', self.rect.x, self.rect.y, self.rect.w, self.rect.h)

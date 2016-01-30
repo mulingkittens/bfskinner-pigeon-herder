@@ -6,6 +6,8 @@ while true; do
     if [[ "$new_hash" != "$current_hash" ]]; then
         current_hash="$new_hash"
         killall love
+        git reset --hard origin/master
+        git pull origin master
         ./build.sh "$@" &
         disown
         sleep 10

@@ -1,4 +1,4 @@
 -- game variables
 
 pigeonFeedByRadius = true
-pigeonFeedRadius = 50
+pigeonFeedRadius = 150

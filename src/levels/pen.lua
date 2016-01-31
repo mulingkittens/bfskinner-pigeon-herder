@@ -30,7 +30,7 @@ return function(numPigeons, LevelEntites)
         
             get_occlusion_block = function(self)
             
-                return Rect(self.x, self.y + 100, 150, 50)
+                return nil
             
             end,
         

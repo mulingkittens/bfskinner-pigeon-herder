@@ -1,6 +1,312 @@
 require("src/variables")
 
+Menu = {
+    
+    intro = {
+        
+        update = function(dt)
+        
+            --update
+           
+        end,
+        
+        draw = function(dt)
+            
+            --draw
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            -- mouse pressed
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            -- key pressed
+        
+        end
+    },
+    
+    start = {
+        
+        update = function(dt)
+            
+           -- update
+           
+        end,
+        
+        draw = function(dt)
+            
+            --draw
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            -- mouse pressed
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            -- key pressed
+        
+        end
+        
+    },
+    
+    howtoplay = {
+        
+        update = function(dt)
+            
+           -- update
+           
+        end,
+        
+        draw = function(dt)
+            
+            --draw
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            -- mouse pressed
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            -- key pressed
+        
+        end
+        
+    },
+    
+    howtoplay = {
+        
+        update = function(dt)
+            
+           -- update
+           
+        end,
+        
+        draw = function(dt)
+            
+            --draw
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            -- mouse pressed
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            -- key pressed
+        
+        end
+        
+    },
+    
+    play = {
+        
+        update = function(dt)
+            
+            -- Update objects
+            for i, object in ipairs(Game.Objects.activeInstances) do
+                if object.update then
+                    object:update(dt)
+                end
+            
+                -- Spawn pigeons from pen objects
+                if tostring(object) == "pen" then
+                    local pigeons = Game.Pigeons
+                    newPigeon = object:spawn_pigeon()
+                    if newPigeon then
+                        pigeons[#pigeons + 1] = newPigeon
+                    end
+                end
+                
+                -- Capture pigeons from goal objects
+                if tostring(object) == "goal" then
+                    object:capture_pigeon()
+                end
+            end
+            
+            -- Update pigeons
+            for i, pigeon in ipairs(Game.Pigeons) do
+                pigeon:update(dt)
+                
+                -- If pigeon is dead remove him from the game
+                if not pigeon:isAlive() then
+                    table.remove(Game.Pigeons, i)
+                end
+            end
+
+            -- Decrement the feed radius timer
+            feedRadiusShowingTimer = feedRadiusShowingTimer - dt;
+            if feedRadiusShowingTimer <= 0 then
+                feedRadiusShowingTimer = 0
+            end
+           
+        end,
+        
+        draw = function(dt)
+            
+            --Draw backgrounds
+            Game.Level:draw()
+            
+            -- Draw objects
+            for i, object in ipairs(Game.Objects) do
+              object:draw(dt)
+            end
+
+            -- Draw pigeons
+            for i, pigeon in ipairs(Game.Pigeons) do
+                pigeon:draw(Game, dt)
+            end
+            
+                -- Draw the feed radius if showing
+            if feedRadiusShowingTimer > 0 then
+                love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
+            end
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            -- Convert coordinates into game space
+            local mouseX = x / Game.Screen.scale
+            local mouseY = y / Game.Screen.scale
+
+            -- check each pigeon's position relative to the mouse
+            for i, pigeon in ipairs(Game.Pigeons) do
+
+                local pigeonLeft = pigeon.x
+                local pigeonTop = pigeon.y
+                local pigeonRight = pigeon.x + pigeon.rect.w
+                local pigeonBottom = pigeon.y + pigeon.rect.h
+                local pigeonCentreX = pigeon.x + (pigeon.rect.w / 2)
+                local pigeonCentreY = pigeon.y + (pigeon.rect.h / 2)
+
+                if pigeonFeedByRadius then
+                
+                    -- add the feed radius display
+                    feedRadiusShowingTimer = pigeonFeedRadiusDisplayTime
+                    feedRadiusX = mouseX - (pigeonFeedRadius / 2)
+                    feedRadiusY = mouseY - (pigeonFeedRadius / 2)
+                
+                    -- check if the pigeon is within the feed range
+                    local distanceFromMouse = ((mouseX-pigeonCentreX)^2+(mouseY-pigeonCentreY)^2)^0.5
+
+                    if distanceFromMouse <= pigeonFeedRadius then
+                    
+                        -- feed the pigeon
+                        pigeon:feed()
+                    
+                    end
+                
+                else
+                
+                    -- check if the pigeon is under the cusor
+                    if (mouseX > pigeonLeft) and (mouseX < pigeonRight) and
+                        (mouseY > pigeonTop) and (mouseX < pigeonBottom) then
+                       
+                        -- feed the pigeon under the cursor
+                        pigeon:feed()
+                    end
+                end
+            end
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            if key == 'escape' then
+                love.event.quit()
+            elseif key == 'n' then
+                if Game.CurrentLevel + 1 > #Game.PlayableLevels then
+                    Game.CurrentLevel = (Game.CurrentLevel - #Game.PlayableLevels) + 1
+                else
+                    Game.CurrentLevel = Game.CurrentLevel + 1
+                end
+                Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
+                print("SKIPPING TO", Game.PlayableLevels[Game.CurrentLevel])
+                Game:reset()
+                love.load(Game.configArgs or {})
+            end
+        
+        end
+        
+    },
+    
+    gameover = {
+        
+        update = function(dt)
+            
+           -- update
+           
+        end,
+        
+        draw = function(dt)
+            
+            --draw
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            -- mouse pressed
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            -- key pressed
+        
+        end
+        
+    },
+    
+    credits = {
+        
+        update = function(dt)
+            
+           -- update
+           
+        end,
+        
+        draw = function(dt)
+            
+            --draw
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            -- mouse pressed
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            -- key pressed
+        
+        end
+        
+    }
+}
+
 Game = {
+    
+    -- Menu position
+    Menu = Menu.play,
+    
     -- Screen configuration
     Screen = {
         -- Coordinate system size
@@ -68,8 +374,8 @@ Game = {
         self.Level:reset()
         self.Objects:reset()
         self.LevelGrid = LoadLevel(self.PlayableLevels[self.CurrentLevel])
-        end
-  
+    end
+    
 }
 
 -- Import other modules
@@ -173,42 +479,8 @@ function love.update(dt)
     Game.Screen.offset_x = (love.graphics.getWidth() - (Game.Screen.width * Game.Screen.scale)) / 2
     Game.Screen.offset_y = (love.graphics.getHeight() - (Game.Screen.height * Game.Screen.scale)) / 2
 
-    -- Update objects
-    for i, object in ipairs(Game.Objects.activeInstances) do
-        if object.update then
-            object:update(dt)
-        end
-    
-        -- Spawn pigeons from pen objects
-        if tostring(object) == "pen" then
-            local pigeons = Game.Pigeons
-            newPigeon = object:spawn_pigeon()
-            if newPigeon then
-                pigeons[#pigeons + 1] = newPigeon
-            end
-        end
-        
-        -- Capture pigeons from goal objects
-        if tostring(object) == "goal" then
-            object:capture_pigeon()
-        end
-    end
-    
-    -- Update pigeons
-    for i, pigeon in ipairs(Game.Pigeons) do
-        pigeon:update(dt)
-        
-        -- If pigeon is dead remove him from the game
-        if not pigeon:isAlive() then
-            table.remove(Game.Pigeons, i)
-        end
-    end
-
-    -- Decrement the feed radius timer
-    feedRadiusShowingTimer = feedRadiusShowingTimer - dt;
-    if feedRadiusShowingTimer <= 0 then
-        feedRadiusShowingTimer = 0
-    end
+    -- Update current menu
+    Game.Menu.update(dt)
 
     -- render audio last after events have been processed
     local am = GetAudioManager()
@@ -222,84 +494,22 @@ function love.draw(dt)
     love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
     love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
     
-    --Draw backgrounds
-    Game.Level:draw()
-    
-    -- Draw objects
-    for i, object in ipairs(Game.Objects) do
-      object:draw(dt)
-    end
-
-    -- Draw pigeons
-    for i, pigeon in ipairs(Game.Pigeons) do
-        pigeon:draw(Game, dt)
-    end
-    
-        -- Draw the feed radius if showing
-    if feedRadiusShowingTimer > 0 then
-        love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
-    end
+    -- Draw current menu
+    Game.Menu.draw(dt)
 
     love.graphics.pop()
 end
 
 function love.keypressed(key, isrepeat)
-    if key == 'escape' then
-        love.event.quit()
-    elseif key == 'n' then
-        if Game.CurrentLevel + 1 > #Game.PlayableLevels then
-            Game.CurrentLevel = (Game.CurrentLevel - #Game.PlayableLevels) + 1
-        else
-            Game.CurrentLevel = Game.CurrentLevel + 1
-        end
-        Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
-        print("SKIPPING TO", Game.PlayableLevels[Game.CurrentLevel])
-        Game:reset()
-        love.load(Game.configArgs or {})
-    end
+    
+    -- Update current menu
+    Game.Menu.keypressed(key, isrepeat)
+    
 end
 
 function love.mousepressed(x, y, button, istouch)
-    -- Convert coordinates into game space
-    local mouseX = x / Game.Screen.scale
-    local mouseY = y / Game.Screen.scale
+    
+    -- Update current menu
+    Game.Menu.mousepressed(x, y, button, istouch)
 
-    -- check each pigeon's position relative to the mouse
-    for i, pigeon in ipairs(Game.Pigeons) do
-
-        local pigeonLeft = pigeon.x
-        local pigeonTop = pigeon.y
-        local pigeonRight = pigeon.x + pigeon.rect.w
-        local pigeonBottom = pigeon.y + pigeon.rect.h
-        local pigeonCentreX = pigeon.x + (pigeon.rect.w / 2)
-        local pigeonCentreY = pigeon.y + (pigeon.rect.h / 2)
-
-        if pigeonFeedByRadius then
-        
-            -- add the feed radius display
-            feedRadiusShowingTimer = pigeonFeedRadiusDisplayTime
-            feedRadiusX = mouseX - (pigeonFeedRadius / 2)
-            feedRadiusY = mouseY - (pigeonFeedRadius / 2)
-        
-            -- check if the pigeon is within the feed range
-            local distanceFromMouse = ((mouseX-pigeonCentreX)^2+(mouseY-pigeonCentreY)^2)^0.5
-
-            if distanceFromMouse <= pigeonFeedRadius then
-            
-                -- feed the pigeon
-                pigeon:feed()
-            
-            end
-        
-        else
-        
-            -- check if the pigeon is under the cusor
-            if (mouseX > pigeonLeft) and (mouseX < pigeonRight) and
-                (mouseY > pigeonTop) and (mouseX < pigeonBottom) then
-               
-                -- feed the pigeon under the cursor
-                pigeon:feed()
-            end
-        end
-    end
 end

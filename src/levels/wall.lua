@@ -1,7 +1,7 @@
 return function(LevelEntites)
     return function(x, y)
         --print("WALL", x, y, LevelEntites)
-        obj = setmetatable({
+        local obj = setmetatable({
                 quad = function(self)
                     return LevelEntites.sprites["wall"]
                 end,
@@ -17,7 +17,7 @@ return function(LevelEntites)
                 
                  get_occlusion_block = function(self)
                 
-                    return Rect(self.x, self.y, 150, 150)
+                    return Rect(self.x, self.y, 128, 128)
                 
                 end,
                 

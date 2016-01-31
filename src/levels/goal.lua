@@ -23,13 +23,13 @@ return function(LevelEntites)
             
             get_occlusion_block = function(self)
             
-                return Rect(0, 0, 1, 1)
+                return nil
             
             end,
             
             capture_pigeon = function(self)
                
-                local goalRect = Rect(self.x, self.y, 150, 150)
+                local goalRect = Rect(self.x, self.y, 128, 128)
                 
                 for i, pigeon in ipairs(Game.Pigeons) do
                     

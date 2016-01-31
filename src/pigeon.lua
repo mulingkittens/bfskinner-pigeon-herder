@@ -30,8 +30,12 @@ local function create_move_action(dx, dy)
         
         -- Fail if the pigeon wants to move into an object
         for _, object in ipairs(Game.Objects.activeInstances) do
-            if object.get_occlusion_block then
+            print("Object Type: ", object)
+            if object.get_occlusion_block and object:get_occlusion_block() then
                 if object:get_occlusion_block():intersects(new_rect) then
+                    print("Object collision with ", object)
+                    print("Object: ", object:get_occlusion_block())
+                    print("Pigron: ", new_rect)
                     return false
                 end
             end

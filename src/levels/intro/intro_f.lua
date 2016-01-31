@@ -1,7 +1,7 @@
 return function(LevelEntites)
     return function(x, y)
         local obj = {
-            x = x, 
+            x = x,
             y = y,
             quad = function(self)
                 return LevelEntites.sprites["intro_f"]

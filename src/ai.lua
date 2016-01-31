@@ -67,12 +67,12 @@ return function()
         action_history = {},
         -- Name of the current pattern (so we can reinforce it)
         active_pattern_name = nil,
-        -- Consume actions off the start of this table. When empty, 
+        -- Consume actions off the start of this table. When empty,
         active_pattern_actions = {},
         -- Whether the pattern has been reinforced yet
         active_pattern_reinforced = false,
         -- Whether the current action has been reinforced yet
-        current_action_reinforced = false, 
+        current_action_reinforced = false,
 
         initialise = function(self)
             -- Set up initial known patterns

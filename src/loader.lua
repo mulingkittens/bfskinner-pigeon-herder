@@ -7,11 +7,11 @@
    A map is a simple ASCII grid, layed out as follows
 git stash
    ^-------------
-   |             
-   |             
-   |      S      
-   |   B         
-   |P            
+   |
+   |
+   |      S
+   |   B
+   |P
    --------------
 
 For each square on the grid in the map, The given ASCII character is looked up in the engine's `map_items` module,

@@ -27,7 +27,7 @@ local function create_move_action(dx, dy)
         if not screen_rect:contains(new_rect) then
             return false
         end
-        
+
         -- Fail if the pigeon wants to move into another pigeon
         for _, other_pigeon in ipairs(Game.Pigeons) do
             if self ~= other_pigeon then
@@ -36,7 +36,7 @@ local function create_move_action(dx, dy)
                 end
             end
         end
-        
+
         -- Fail if the pigeon wants to move into an object
         for _, object in ipairs(Game.Objects.activeInstances) do
             if object.get_occlusion_block and object:get_occlusion_block() then
@@ -45,7 +45,7 @@ local function create_move_action(dx, dy)
                 end
             end
         end
-        
+
         -- Looks like we won't hit anything
         self.x = new_x
         self.y = new_y
@@ -168,7 +168,7 @@ Action.glance = {
 }
 return function(x, y)
     local new_pigeon = setmetatable({
-     
+
         currentState = state.alive,
         action = nil,
         currentActionTime = 0,
@@ -198,7 +198,7 @@ return function(x, y)
                 {"coo.wav", "coo", "play",},
             })
         end,
-        
+
         update = function(self, dt)
 
             -- if the pigeon has died return imediately
@@ -250,7 +250,7 @@ return function(x, y)
                 self:setNextAction()
             end
         end,
-     
+
         draw = function(self, dt)
 
             -- draw pigeon
@@ -286,7 +286,7 @@ return function(x, y)
                 love.graphics.setColor(r, g, b, a)
             end
         end,
-     
+
         feed = function(self)
 
             -- return because you can't feed a dead  pigeon
@@ -313,7 +313,7 @@ return function(x, y)
             end
 
         end,
-    
+
         isAlive = function(self)
             if self.currentState == state.dead then
                 return false
@@ -321,12 +321,12 @@ return function(x, y)
                 return true
             end
         end,
-        
+
         selectNextAction = function(self)
-        
+
             local highestInfluence = 0
             local highestInfluenceAction = 0
-        
+
             -- iterate through the influence table and store the action of the highest value
             for action, influence in pairs(self.influenceTable) do
                 if influence > highestInfluence then
@@ -334,15 +334,15 @@ return function(x, y)
                     highestInfluenceAction = action
                 end
             end
-            
+
             -- if the highest value is greater than the upper threshold then return that action
             if highestInfluence >= pigeonInfluenceUpperThreshold then
                 return highestInfluenceAction
             end
-            
+
             -- otherwise return a random action
             return random_value(Action)
-            
+
             --TODO(Gordon): Implement random actions based on influences
             --[[
             -- create a table of actions and asign their percentage of being selected.
@@ -367,7 +367,7 @@ return function(x, y)
             actionTimeVariance = (math.random() * 1) - 0.5
             self.currentActionTime = pigeonActionTime + actionTimeVariance
         end,
-        
+
     }, {
 
         -- operators

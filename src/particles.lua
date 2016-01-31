@@ -7,7 +7,10 @@ return function(x, y)
     )
 
     pr:setEmitterLifetime(1 + math.random(), 2 + math.random()) -- spit out a small number of "feather " particles
-    pr:setColors(unpack(colours))
+    -- pr:setColors(unpack(colours))
+    pr:setParticleLifetime(3)
+    pr:setEmissionRate(30)
+    pr:setLinearAcceleration(30, 30, 30, 30)
 
     return {
         emitted = false,

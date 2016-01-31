@@ -242,7 +242,7 @@ Menu = {
     
         keypressed = function(key, isrepeat)
         
-            if key == 'escape' then
+            if key == 'escape' or key == 'q' then
                 love.event.quit()
             elseif key == 'n' then
                 if Game.CurrentLevel + 1 > #Game.PlayableLevels then

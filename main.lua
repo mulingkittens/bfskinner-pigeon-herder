@@ -1,5 +1,6 @@
 require("src/variables")
 ParticleFactory = require("src/particles")
+
 Menu = {
 
     main = {
@@ -25,7 +26,10 @@ Menu = {
         keypressed = function(key, isrepeat)
         
             if key == 'space' then
-               Game.Menu = Menu.play
+                --LoadLevel requires Game in scope
+                Game.CurrentLevel = 1
+                Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
+                Game.Menu = Menu.play
             end
             if key == 'i' then
                Game.Menu = Menu.howtoplay
@@ -266,9 +270,7 @@ Menu = {
                     Game.CurrentLevel = Game.CurrentLevel + 1
                 end
                 Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
-                print("SKIPPING TO", Game.PlayableLevels[Game.CurrentLevel])
                 Game:reset()
-                love.load(Game.configArgs or {})
             end
         
         end
@@ -334,7 +336,7 @@ Game = {
         totalPigeons = 10,
         deadPigeons = 0,
         capturedPigeons = 0,
-        ambientAudio = {},
+        ambientAudio = false,
     },
 
     -- Pigeons
@@ -403,9 +405,6 @@ Game.Objects = {
     })
 }
 
---LoadLevel requires Game in scope
-Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
-
 feedRadiusShowingTimer = 0
 feedRadiusX = 0
 feedRadiusY = 0
@@ -452,7 +451,6 @@ function love.load(args)
 
     -- Default background color
     love.graphics.setBackgroundColor(255, 255, 255)
-
 end
     
 function love.update(dt)
@@ -468,8 +466,9 @@ function love.update(dt)
     -- render audio last after events have been processed
     local am = GetAudioManager()
     am:update()
-    am:start(Game.LevelState.ambientAudio)
-
+    if Game.LevelState.ambientAudio then
+        am:start(Game.LevelState.ambientAudio)
+    end
 end
 
 function love.draw(dt)

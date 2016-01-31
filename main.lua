@@ -16,6 +16,7 @@ Game = {
         "level1",
         "level2",
         "level3",
+        "level9",
     },
     
     CurrentLevel = 1,
@@ -246,8 +247,13 @@ function love.keypressed(key, isrepeat)
     if key == 'escape' then
         love.event.quit()
     elseif key == 'n' then
-        Game.CurrentLevel = ((Game.CurrentLevel + 1) % #Game.PlayableLevels) + 1
+        if Game.CurrentLevel + 1 > #Game.PlayableLevels then
+            Game.CurrentLevel = (Game.CurrentLevel - #Game.PlayableLevels) + 1
+        else
+            Game.CurrentLevel = Game.CurrentLevel + 1
+        end
         Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
+        print("SKIPPING TO", Game.PlayableLevels[Game.CurrentLevel])
         Game:reset()
         love.load(Game.configArgs or {})
     end

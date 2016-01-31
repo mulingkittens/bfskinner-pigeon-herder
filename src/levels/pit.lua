@@ -1,5 +1,5 @@
 return function(LevelEntites)
-    print("PIT initial", LevelEntites)
+    --print("PIT initial", LevelEntites)
     return function(x, y)
         obj = {
             quad = function(self)

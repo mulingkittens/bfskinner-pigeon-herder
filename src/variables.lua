@@ -26,3 +26,15 @@ pigeonInfluenceDecrement = 0.1
 maxAudioQueueTime = 0.25
 maxAudioQueueEvents = 4
 fallbackAmbiantAudioFile = "assets/audio/birdchatter.wav"
+
+ai_noise_weight = 0.1
+ai_weak_reinforce_weight = 0.05
+ai_strong_reinforce_weight = 0.2
+ai_max_long_patterns_remembered = 5
+ai_long_pattern_recall_threshold = 0.05
+ai_long_pattern_minimum_length = 2
+ai_long_pattern_maximum_length = 5
+ai_long_pattern_maximum_weight = 1.0
+ai_short_pattern_maximum_weight = 0.5
+ai_weight_decay_exponent = 1.1
+ai_can_learn_from_observing = true

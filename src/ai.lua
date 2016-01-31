@@ -48,15 +48,15 @@ afterwards:
 
 function pattern_noise()
     -- Have to multiply and divide by 1000, because love.math.random works with ints
-    return (love.math.random(-0.1 * 1000, 0.1 * 1000) / 1000)
+    return (love.math.random(-ai_noise_weight * 1000, ai_noise_weight * 1000) / 1000)
 end
 
 function reinforce_weak(weight)
-    return math.min(math.max(0.01, weight + 0.05), 1.0)
+    return math.min(math.max(0.01, weight + ai_weak_reinforce_weight), 1.0)
 end
 
 function reinforce_strong(weight)
-    return math.min(math.max(0.01, weight + 0.2), 1.0)
+    return math.min(math.max(0.01, weight + ai_strong_reinforce_weight), 1.0)
 end
 
 return function()
@@ -69,6 +69,10 @@ return function()
         active_pattern_name = nil,
         -- Consume actions off the start of this table. When empty, 
         active_pattern_actions = {},
+        -- Whether the pattern has been reinforced yet
+        active_pattern_reinforced = false,
+        -- Whether the current action has been reinforced yet
+        current_action_reinforced = false, 
 
         initialise = function(self)
             -- Set up initial known patterns
@@ -99,7 +103,7 @@ return function()
                         long_pattern_count = long_pattern_count + 1
                     end
                 end
-                if long_pattern_count >= 5 then
+                if long_pattern_count >= ai_max_long_patterns_remembered then
                     for name, other_pattern in pairs(self.patterns) do
                         if (self.active_pattern_name ~= name
                             and other_pattern.length > 1
@@ -125,12 +129,11 @@ return function()
 
         select_best_pattern = function(self)
             -- Select the strongest long pattern that's strong enough to recall
-            minimum_long_pattern_weight = 0.05
             strongest_pattern_name = nil
             strongest_weight = 0
             for name, pattern in pairs(self.patterns) do
                 if (pattern.length > 1
-                    and pattern.weight >= minimum_long_pattern_weight
+                    and pattern.weight >= ai_long_pattern_recall_threshold
                     and pattern.weight > strongest_weight) then
                     strongest_pattern_name = name
                     strongest_weight = pattern.weight
@@ -157,6 +160,7 @@ return function()
             end
             self.active_pattern_name = name
             self.active_pattern_actions = upcoming_actions
+            self.active_pattern_reinforced = false
         end,
 
         get_current_action = function(self)
@@ -164,7 +168,8 @@ return function()
             if action == nil then
                 local name = self:select_best_pattern()
                 self:set_next_pattern(name)
-                action = self:get_current_action()
+                action = self.active_pattern_actions[1]
+                self.current_action_reinforced = false
             end
             return action
         end,
@@ -182,22 +187,28 @@ return function()
         end,
 
         reinforce_current_pattern = function(self)
-            -- Reinforce the current pattern
-            local pattern = self.patterns[self.active_pattern_name]
-            if pattern.length > 1 then
-                -- Strongly if it's a long pattern
-                pattern.weight = reinforce_strong(pattern.weight)
-            else
-                -- Otherwise form a weak pattern if we can
-                local history_length = #self.action_history
-                if history_length > 2 then
-                    local length = love.math.random(2, 5)
-                    length = math.min(length, history_length)
-                    local actions = {}
-                    for i = history_length - length, history_length do
-                        actions[#actions + 1] = self.action_history[i]
+            if not self.current_action_reinforced then
+                self.current_action_reinforced = true
+                -- Reinforce the current pattern
+                local pattern = self.patterns[self.active_pattern_name]
+                if pattern.length > 1 then
+                    if not self.active_pattern_reinforced then
+                        self.active_pattern_reinforced = true
+                        -- Strongly if it's a long pattern
+                        pattern.weight = reinforce_strong(pattern.weight)
                     end
-                    self:add_pattern(actions, nil, reinforce_weak)
+                else
+                    -- Otherwise form a weak pattern if we can
+                    local history_length = #self.action_history
+                    if history_length > ai_long_pattern_minimum_length then
+                        local length = love.math.random(ai_long_pattern_minimum_length, ai_long_pattern_maximum_length)
+                        length = math.min(length, history_length)
+                        local actions = {}
+                        for i = history_length - length, history_length do
+                            actions[#actions + 1] = self.action_history[i]
+                        end
+                        self:add_pattern(actions, nil, reinforce_weak)
+                    end
                 end
             end
             -- Reinforce the short pattern for the current action weakly
@@ -214,15 +225,54 @@ return function()
             end
         end,
 
+        observe_other_pigeons = function(self, pigeons)
+            if not ai_can_learn_from_observing then
+                return
+            end
+            -- Find a random other feeding pigeon to observer (if any)
+            local feeding_pigeons = {}
+            for _, other_pigeon in ipairs(Game.Pigeons) do
+                if self ~= other_pigeon then
+                    if other_pigeon.feeding then
+                        feeding_pigeons[#feeding_pigeons + 1] = other_pigeon
+                    end
+                end
+            end
+            if #feeding_pigeons > 0 then
+                if not self.current_action_reinforced then
+                    self.current_action_reinforced = true
+                    -- Form a strong pattern from our behaviour if we can, but with
+                    -- the other pigeon's current action on the end.
+                    local other_pigeon = random_value(feeding_pigeons)
+                    local other_action = other_pigeon.ai:get_current_action()
+                    local history_length = #self.action_history
+                    if history_length > ai_long_pattern_minimum_length then
+                        local length = love.math.random(ai_long_pattern_minimum_length, ai_long_pattern_maximum_length - 1)
+                        length = math.min(length, history_length)
+                        local actions = {}
+                        for i = history_length - length, history_length do
+                            actions[#actions + 1] = self.action_history[i]
+                        end
+                        actions[#actions + 1] = other_action
+                        self:add_pattern(actions, nil, reinforce_weak)
+                    end
+                    -- Reinforce the short pattern for the other pigeon's current action weakly
+                    local other_action_name = other_action.name
+                    local other_action_pattern = self.patterns[other_action_name]
+                    other_action_pattern.weight = reinforce_strong(other_action_pattern.weight)
+                end
+            end
+        end,
+
         decay_patterns = function(self)
             for name, pattern in pairs(self.patterns) do
                 local max_weight
                 if pattern.length > 1 then
-                    max_weight = 1.0
+                    max_weight = ai_long_pattern_maximum_weight
                 else
-                    max_weight = 0.5
+                    max_weight = ai_short_pattern_maximum_weight
                 end
-                local new_weight = math.min(math.max(0.01, pattern.weight * (pattern.weight ^ 0.1)), max_weight)
+                local new_weight = math.min(math.max(0.01, pattern.weight ^ ai_weight_decay_exponent), max_weight)
                 pattern.weight = new_weight
             end
         end,

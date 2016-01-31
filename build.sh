@@ -10,7 +10,7 @@ fi
 
 project_dir() {
     if [ -n "$BASH_SOURCE" ] ; then
-        echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/";
+        echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )/" && pwd )/";
         return 0;
     elif [ -n "$ZSH_VERSION" ] ; then
         echo "$(python -c "import os, sys; print(os.path.dirname(os.path.realpath('$_ZSH_SOURCE/')))")";
@@ -21,7 +21,7 @@ project_dir() {
 cd "$(project_dir)/src"
 
 ## To build a zip
-# zip -r ../game.love *
+ zip -r ../game.love *
 # "$LOVE" ../game.love "$@"
 
 # But we just run from source instead

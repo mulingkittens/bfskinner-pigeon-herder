@@ -1,5 +1,5 @@
 local audio_manager = false -- private scoped singleton
-local newSource = love.Audio.newSource
+local newSource = love.audio.newSource
 
 local function DeadlineMaxQueue(max_len, max_wait)
     local max_len = max_len or maxAudioQueueEvents
@@ -19,9 +19,8 @@ local function DeadlineMaxQueue(max_len, max_wait)
         end,
         pop = function(self)
             local time = love.timer.getTime()
-            print("HEAD", head)
             local pair = self[head]
-            assert(pair)
+            if pair == nil then return nil end
             self[head] = nil
             head = head + 1
 
@@ -70,45 +69,58 @@ GetAudioManager = function()
 
         audio_manager = setmetatable({
             registerEvents = function(self, obj, event_triples)
-                -- events should be a table of named-event keys, with
-                -- audio source file values
-                -- when an audio event is received from the given
-
+                -- events should be a triple of
                 -- (audiofile, event_name, audio_action_name)
                 -- event_triple = {"file.wav", "peck", "play"}
                 assert(obj)
                 for _, triple in ipairs(event_triples) do
-                    local file, event_name, action = unpack(triple)
+                    local file, event, action = unpack(triple)
                     local source = assert(newSource("assets/audio/" .. file))
-                    audio_sources[obj][event_name] = source
-                    -- Now the audiofile is loaded we can
-                    -- replace the third item with the obj
-                    triple[1] = obj
+                    if not obj.AudioSources then
+                        obj.AudioSources = {}
+                    end
+                    obj.AudioSources[file] = source
+                    audio_sources[obj][event] = {
+                        source = source,
+                        callback = function()
+                            source:setDirection(obj.x or 0.5, obj.y or 0.5)
+                            self[action](self, obj.AudioSources[file])
+                        end
+                    }
                 end
             end,
 
-            stop = function(self, obj, event_name)
-                love.audio.stop(audio_sources[obj][event_name])
+            stop = function(self, source)
+                love.audio.stop(source)
             end,
 
-            start = function(self, obj, event_name)
-                love.audio.play(audio_sources[obj][event_name])
+            start = function(self, source)
+                love.audio.play(source)
             end,
 
-            rewind = function(self, obj, event)
-                love.audio.rewind(audio_sources[obj][event_name])
+            play = function(self, source)
+                love.audio.play(source)
+            end,
+
+            rewind = function(self, source)
+                love.audio.rewind(source)
             end,
 
             update = function(self)
-                for k, v in pairs(pending_events) do
-                    local event_triple = v:pop()
-                    self[event_triple[2]](event_triple[1], audio_sources[obj])
+                for obj, ev in pairs(pending_events) do
+                    local event = ev:pop()
+                    if type(event) == 'string' then
+                        pcall(audio_sources[obj][event].callback)
+                    elseif type(event) == 'table' then
+                        error("notimplemented", 2)
+                        --FIXME lookup Volume and position in the table here
+                    end
                 end
             end,
 
-            sendEvent = function(self, obj, event_triple)
-
-                pending_events[obj]:push(assert(event_triple))
+            sendEvent = function(self, obj, event)
+            --    print("sendEvent", obj, event)
+                pending_events[obj]:push(event)
             end
         }, {
             __tostring = function(self)

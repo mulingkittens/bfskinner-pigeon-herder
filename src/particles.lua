@@ -10,8 +10,12 @@ return function(x, y)
     -- pr:setColors(unpack(colours))
     pr:setParticleLifetime(3)
     pr:setEmissionRate(30)
+    -- We drift with this
     pr:setLinearAcceleration(30, 30, 30, 30)
-
+    pr:setSpread(20)
+    pr:setSpeed(math.random(), 1 + math.random() * 10)
+    pr:setSizeVariation(math.random())
+    pr:start()
     return {
         emitted = false,
         pr = pr,

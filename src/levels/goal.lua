@@ -1,9 +1,12 @@
-return function(LevelEntites)
+return function(targetPigeons, LevelEntites)
     return function(x, y)
         local newGoal = setmetatable({
             
             x = (x-1) * 128,
             y = (y-1) * 128,
+            
+            targetPigeons = targetPigeons,
+            capturedPigeons = 0,
             
             quad = function(self)
                  return LevelEntites.sprites["goal"]
@@ -15,11 +18,13 @@ return function(LevelEntites)
             
             end,
              
-            draw = function(self, dt)
+            post_draw = function(self, dt)
             
-                love.graphics.draw(Game.Sprites.Goal, self.x, self.y)
+                goalDisplay = self.capturedPigeons .. " / " .. self.targetPigeons
                 
-            end,
+                love.graphics.print(goalDisplay, self.x, self.y)
+                
+            end, 
             
             get_occlusion_block = function(self)
             
@@ -42,9 +47,19 @@ return function(LevelEntites)
                         -- Remove pigeon from the game
                         table.remove(Game.Pigeons, i)
                         
+                        -- Increment captured pigeon counter
+                        self.capturedPigeons =  self.capturedPigeons + 1
                     end
                     
                 end
+                
+            end,
+            
+            win_condition_triggered = function(self)
+            
+                print("Check Win Condition: ", self.capturedPigeons, " / ", self.targetPigeons)
+            
+                return (self.capturedPigeons >= self.targetPigeons)
                 
             end
             

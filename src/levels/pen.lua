@@ -22,11 +22,13 @@ return function(numPigeons, LevelEntites)
                 end
             end,
              
-            --[[--draw = function(self, dt)
+            post_draw = function(self, dt)
             
-                love.graphics.draw(Game.Sprites.Pen, self.x, self.y)
-            
-            end,--]]--
+                penDisplay = self.numPigeons .. " left"
+                
+                love.graphics.print(penDisplay, self.x, self.y)
+                
+            end, 
         
             get_occlusion_block = function(self)
             

@@ -186,6 +186,7 @@ Menu = {
         
             if key == 'space' then
                  
+                Game:reset()
                 Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
                 Game.Menu = Menu.play
             end
@@ -216,6 +217,11 @@ Menu = {
                 -- Capture pigeons from goal objects
                 if tostring(object) == "goal" then
                     object:capture_pigeon()
+                    if object:win_condition_triggered() then
+                        Game.CurrentLevel = Game.CurrentLevel + 1
+                        Game.Menu = Menu.interstitial
+                        Game:reset()
+                    end
                 end
             end
             
@@ -252,13 +258,15 @@ Menu = {
             --Draw backgrounds
             Game.Level:draw()
             
-            -- Draw objects
-            for i, object in ipairs(Game.Objects) do
-              object:draw(dt)
+            -- Draw post draw objects effects
+            for _, object in pairs(Game.Objects.activeInstances) do
+                if tostring(object) == "goal" or tostring(object) == "pen" then
+                    object:post_draw(dt)
+                end
             end
 
             -- Draw pigeons
-            for i, pigeon in ipairs(Game.Pigeons) do
+            for i, pigeon in pairs(Game.Pigeons) do
                 pigeon:draw(dt)
             end
             
@@ -467,9 +475,9 @@ Game.Objects = {
     
     activeInstances = {},
     default_constructors = setmetatable({
-        P = Pen(20, level), --Additionally takes number of pigeons to spawn, can override on level specifics
+        P = Pen(4, level), --Additionally takes number of pigeons to spawn, can override on level specifics
         S = Pit(level),
-        G = Goal(level),
+        G = Goal(4, level),
         [" "] = Grass(level), 
         ["|"] = Wall(level),
         ["-"] = Wall(level),
@@ -486,6 +494,8 @@ feedRadiusX = 0
 feedRadiusY = 0
 
 function love.load(args)
+    
+    -- Set args
     Game.configArgs = args
     
     -- Look for args
@@ -527,6 +537,9 @@ function love.load(args)
 
     -- Default background color
     love.graphics.setBackgroundColor(255, 255, 255)
+    
+    -- Set default font size
+    love.graphics.setNewFont(32)
 end
     
 function love.update(dt)

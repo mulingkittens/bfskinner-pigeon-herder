@@ -85,34 +85,6 @@ Menu = {
         
     },
     
-    howtoplay = {
-        
-        update = function(dt)
-            
-           -- update
-           
-        end,
-        
-        draw = function(dt)
-            
-            --draw
-            
-        end,
-        
-        mousepressed = function(x, y, button, istouch)
-        
-            -- mouse pressed
-        
-        end,
-    
-        keypressed = function(key, isrepeat)
-        
-            -- key pressed
-        
-        end
-        
-    },
-    
     play = {
         
         update = function(dt)

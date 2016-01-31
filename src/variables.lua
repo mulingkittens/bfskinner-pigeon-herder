@@ -26,3 +26,6 @@ pigeonInfluenceDecrement = 0.1
 maxAudioQueueTime = 0.25
 maxAudioQueueEvents = 4
 fallbackAmbiantAudioFile = "assets/audio/birdchatter.wav"
+
+-- particles
+defaultParticleSprite = "assets/puff.png"

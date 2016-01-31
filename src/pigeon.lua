@@ -196,10 +196,13 @@ return function(x, y)
                 return
             end
 
-            -- reinforce ai when feeding
             if self.feeding then
+                -- reinforce ai when feeding
                 self.ai:reinforce_current_pattern()
                 self.feeding = false
+            else
+                -- observe other pigeons when not feeding
+                self.ai:observe_other_pigeons(Game.Pigeons)
             end
 
             -- decrement food level

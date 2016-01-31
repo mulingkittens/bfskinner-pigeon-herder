@@ -1,35 +1,8 @@
 require("src/variables")
 
 Menu = {
-    
-    intro = {
-        
-        update = function(dt)
-        
-            --update
-           
-        end,
-        
-        draw = function(dt)
-            
-            --draw
-            
-        end,
-        
-        mousepressed = function(x, y, button, istouch)
-        
-            -- mouse pressed
-        
-        end,
-    
-        keypressed = function(key, isrepeat)
-        
-            -- key pressed
-        
-        end
-    },
-    
-    start = {
+
+    main = {
         
         update = function(dt)
             
@@ -39,19 +12,27 @@ Menu = {
         
         draw = function(dt)
             
-            --draw
+            love.graphics.draw(Game.Sprites.Menu.main)
             
         end,
         
         mousepressed = function(x, y, button, istouch)
         
-            -- mouse pressed
+            --mouse pressed
         
         end,
     
         keypressed = function(key, isrepeat)
         
-            -- key pressed
+            if key == 'space' then
+               Game.Menu = Menu.play
+            end
+            if key == 'i' then
+               Game.Menu = Menu.howtoplay
+            end
+            if key == 'c' then
+               Game.Menu = Menu.credits
+            end
         
         end
         
@@ -79,13 +60,15 @@ Menu = {
     
         keypressed = function(key, isrepeat)
         
-            -- key pressed
+            if key == 'space' then
+               Game.Menu = Menu.main
+            end
         
         end
         
     },
     
-    howtoplay = {
+    gameover = {
         
         update = function(dt)
             
@@ -102,6 +85,38 @@ Menu = {
         mousepressed = function(x, y, button, istouch)
         
             -- mouse pressed
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            if key == 'space' then
+               Game.Menu = Menu.main
+            end
+        
+        end
+        
+    },
+    
+    credits = {
+        
+        update = function(dt)
+            
+           -- update
+           
+        end,
+        
+        draw = function(dt)
+            
+            love.graphics.draw(Game.Sprites.Menu.credits)
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            if key == 'space' then
+               Game.Menu = Menu.main
+            end
         
         end,
     
@@ -243,69 +258,14 @@ Menu = {
         
         end
         
-    },
-    
-    gameover = {
-        
-        update = function(dt)
-            
-           -- update
-           
-        end,
-        
-        draw = function(dt)
-            
-            --draw
-            
-        end,
-        
-        mousepressed = function(x, y, button, istouch)
-        
-            -- mouse pressed
-        
-        end,
-    
-        keypressed = function(key, isrepeat)
-        
-            -- key pressed
-        
-        end
-        
-    },
-    
-    credits = {
-        
-        update = function(dt)
-            
-           -- update
-           
-        end,
-        
-        draw = function(dt)
-            
-            --draw
-            
-        end,
-        
-        mousepressed = function(x, y, button, istouch)
-        
-            -- mouse pressed
-        
-        end,
-    
-        keypressed = function(key, isrepeat)
-        
-            -- key pressed
-        
-        end
-        
     }
+    
 }
 
 Game = {
     
     -- Menu position
-    Menu = Menu.play,
+    Menu = Menu.main,
     
     -- Screen configuration
     Screen = {
@@ -341,6 +301,10 @@ Game = {
         move1 = love.graphics.newImage('assets/pigeon/move1.png'),
         move2 = love.graphics.newImage('assets/pigeon/move2.png'),
         peck = love.graphics.newImage('assets/pigeon/peck.png'),
+    },
+    Menu = {
+        main = love.graphics.newImage('assets/mainmenu.png') -- ,
+        -- credits = love.graphics.newImage('assets/credits.png')
     },
     FeedRadius = love.graphics.newImage('assets/feed_radius.png'),
     Pen = love.graphics.newImage('assets/pen.png'),

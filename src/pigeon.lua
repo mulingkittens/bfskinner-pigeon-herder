@@ -241,7 +241,7 @@ return function(x, y)
             end
         end,
      
-        draw = function(self, Game, dt)
+        draw = function(self, dt)
 
             -- draw pigeon
             local frame = self.action.frames[self.frameIndex]

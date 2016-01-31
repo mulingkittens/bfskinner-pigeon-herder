@@ -114,15 +114,15 @@ Menu = {
         
         mousepressed = function(x, y, button, istouch)
         
-            if key == 'space' then
-               Game.Menu = Menu.main
-            end
+            -- mouse pressed
         
         end,
     
         keypressed = function(key, isrepeat)
         
-            -- key pressed
+            if key == 'space' then
+               Game.Menu = Menu.main
+            end
         
         end
         
@@ -160,8 +160,18 @@ Menu = {
                 -- If pigeon is dead remove him from the game
                 if not pigeon:isAlive() then
                     table.remove(Game.Pigeons, i)
+                    
+                    local particleSystems = Game.ParticleSystems
+                    particleSystems[#particleSystems + 1] = ParticleFactory(pigeon.x, pigeon.y)
+                    ParticleFactory(pigeon.x, pigeon.y)
                 end
             end
+            
+            -- Update particle systems
+            for i, particleSystem in ipairs(Game.ParticleSystems) do
+                particleSystem:update(dt)
+            end
+            
 
             -- Decrement the feed radius timer
             feedRadiusShowingTimer = feedRadiusShowingTimer - dt;
@@ -183,7 +193,12 @@ Menu = {
 
             -- Draw pigeons
             for i, pigeon in ipairs(Game.Pigeons) do
-                pigeon:draw(Game, dt)
+                pigeon:draw(dt)
+            end
+            
+            -- Draw particle systems
+            for i, particleSystem in ipairs(Game.ParticleSystems) do
+                particleSystem:draw(dt)
             end
             
                 -- Draw the feed radius if showing
@@ -314,8 +329,8 @@ Game = {
         peck = love.graphics.newImage('assets/pigeon/peck.png'),
     },
     Menu = {
-        main = love.graphics.newImage('assets/mainmenu.png') -- ,
-        -- credits = love.graphics.newImage('assets/credits.png')
+        main = love.graphics.newImage('assets/mainmenu.png'),
+        credits = love.graphics.newImage('assets/credits.png')
     },
     FeedRadius = love.graphics.newImage('assets/feed_radius.png'),
     Pen = love.graphics.newImage('assets/pen.png'),
@@ -334,6 +349,9 @@ Game = {
 
     -- Pigeons
     Pigeons = {},
+
+    -- Particle Systems
+    ParticleSystems = {},
 
     -- Level
     LevelGrid = false,

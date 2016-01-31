@@ -256,7 +256,6 @@ Menu = {
         end,
     
         keypressed = function(key, isrepeat)
-        
             if key == 'escape' or key == 'q' then
                 love.event.quit()
             elseif key == 'n' then
@@ -270,17 +269,15 @@ Menu = {
                 Game:reset()
                 love.load(Game.configArgs or {})
             elseif key == 'f3' then
-                  if Game.Debug.draw_actions  ~= nil then
-                      Game.Debug = {}
-                  else
-                      Game.Debug = {
-                          draw_actions = true,
-                          draw_bounding_boxes = true,
-                      }
-                  end
+                if Game.Debug.draw_actions  ~= nil then
+                    Game.Debug = {}
+                else
+                    Game.Debug = {
+                        draw_actions = true,
+                        draw_bounding_boxes = true,
+                    }
+                end
             end
-
-        
         end
         
     }

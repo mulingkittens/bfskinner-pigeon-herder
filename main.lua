@@ -47,7 +47,8 @@ Game = {
         timeRunning = 0,
         totalPigeons = 10,
         deadPigeons = 0,
-        capturedPigeons = 0
+        capturedPigeons = 0,
+        ambientAudio = {},
     },
 
     -- Pigeons
@@ -210,7 +211,10 @@ function love.update(dt)
     end
 
     -- render audio last after events have been processed
-    GetAudioManager():update()
+    local am = GetAudioManager()
+    am:update()
+    am:start(Game.LevelState.ambientAudio)
+
 end
 
 function love.draw(dt)

@@ -1,9 +1,9 @@
 SpriteManager = require("src/sprite_loader/sprite_manager")
 
-spriteX = 128
-spriteY = 128
-scalex = 1
-scaleY = 1
+local spriteX = 128
+local spriteY = 128
+local scalex = 1
+local scaleY = 1
 
 return function()
     --local parent = SpriteManager("assets/basic_ground_tiles.png")

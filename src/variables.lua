@@ -25,3 +25,4 @@ pigeonInfluenceDecrement = 0.1
 -- Audio junk
 maxAudioQueueTime = 0.25
 maxAudioQueueEvents = 4
+fallbackAmbiantAudioFile = "assets/audio/birdchatter.wav"

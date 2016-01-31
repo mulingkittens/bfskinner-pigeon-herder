@@ -23,5 +23,5 @@ pigeonInfluenceLowerThreshold = 25
 pigeonInfluenceDecrement = 0.1
 
 -- Audio junk
-maxAudioQueueTime = math.inf
+maxAudioQueueTime = 0.25
 maxAudioQueueEvents = 4

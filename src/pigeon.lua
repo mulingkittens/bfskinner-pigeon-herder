@@ -29,7 +29,6 @@ local function create_move_action(dx, dy)
         
         -- Fail if the pigeon wants to move into an object
         for _, object in ipairs(Game.Objects.activeInstances) do
-            print(_, object)
             if object.get_occlusion_block then
                 if object:get_occlusion_block():intersects(new_rect) then
                     return false

@@ -5,6 +5,10 @@ return function(LevelEntites)
             x = (x-1) * 128,
             y = (y-1) * 128,
             
+            quad = function(self)
+                 return LevelEntites.sprites["goal"]
+            end,
+            
             update = function(self, dt)
             
                 --update
@@ -32,7 +36,7 @@ return function(LevelEntites)
             end
 
         })
-        LevelEntites.addEntity(x, y, newGoal)
+        LevelEntites:addEntity(x, y, newGoal)
         return newGoal
     end
 end

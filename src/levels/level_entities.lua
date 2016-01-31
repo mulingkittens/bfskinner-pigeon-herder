@@ -11,6 +11,7 @@ return function()
             self.sprites["rocks"] = love.graphics.newQuad(128*2, 0, 128, 128, sheetWidth, sheetHeight)
             self.sprites["pen"] = love.graphics.newQuad(128*3, 0, 128, 128, sheetWidth, sheetHeight)
             self.sprites["wall"] = love.graphics.newQuad(128*3, 128*3, 128, 128, sheetWidth, sheetHeight) 
+            self.sprites["goal"] = love.graphics.newQuad(128*3, 128*1, 128, 128, sheetWidth, sheetHeight) 
         end,
         
         batchSprites = function(self)

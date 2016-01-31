@@ -11,6 +11,7 @@ Grass = require("src/levels/grass")
 Pit = require("src/levels/pit")
 Wall = require("src/levels/wall")
 Pen = require("src/levels/pen")
+Goal = require("src/levels/goal")
 
 local level = LevelManager()
 --Wrap the Pigeon Factory in a constructor tat should allow it to be added to the sprite batch
@@ -65,6 +66,7 @@ Game = {
     default_constructors = setmetatable({
             P = Pen(10, level), --Additionally takes number of pigeons to spawn, can override on level specifics
             S = Pit(level),
+            G = Goal(level),
             [" "] = Grass(level), 
             ["|"] = Wall(level),
             ["-"] = Wall(level),

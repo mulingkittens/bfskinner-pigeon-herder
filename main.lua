@@ -546,6 +546,7 @@ function love.update(dt)
     if Game.LevelState.ambientAudio then
         am:start(Game.LevelState.ambientAudio)
     end
+    MaybeCoo()
 end
 
 function love.draw(dt)

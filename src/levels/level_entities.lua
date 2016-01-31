@@ -7,22 +7,24 @@ local scaleY = 1
 
 return function()
     --local parent = SpriteManager("assets/basic_ground_tiles.png")
-    local parent = SpriteManager("assets/sprites.png")
+    local parent = SpriteManager("assets/sprites2.png")
     local obj = setmetatable({
         entities = {},
         quadifySprites = function(self)
             local sheetWidth = self.spriteSheet:getWidth()
             local sheetHeight = self.spriteSheet:getHeight()
-            --[[--self.sprites["grass"] = love.graphics.newQuad(0, 0, 128, 128, sheetWidth, sheetHeight)
-            self.sprites["rocks"] = love.graphics.newQuad(128*2, 0, 128, 128, sheetWidth, sheetHeight)
-            self.sprites["pen"] = love.graphics.newQuad(128*3, 0, 128, 128, sheetWidth, sheetHeight)
-            self.sprites["wall"] = love.graphics.newQuad(128*3, 128*3, 128, 128, sheetWidth, sheetHeight)
-            self.sprites["goal"] = love.graphics.newQuad(128*3, 128*1, 128, 128, sheetWidth, sheetHeight) --]]--
             self.sprites["grass"] = love.graphics.newQuad(0, 0, spriteX, spriteY, sheetWidth, sheetHeight)
             self.sprites["rocks"] = love.graphics.newQuad(0, 128, spriteX, spriteY, sheetWidth, sheetHeight)
             self.sprites["pen"] = love.graphics.newQuad(0, 128, spriteX, spriteY, sheetWidth, sheetHeight)
             self.sprites["wall"] = love.graphics.newQuad(128, 0, spriteX, spriteY, sheetWidth, sheetHeight)
             self.sprites["goal"] = love.graphics.newQuad(128, 128, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["dark_grass"] = love.graphics.newQuad(0, 256, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["intro_a"] = love.graphics.newQuad(256, 0, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["intro_b"] = love.graphics.newQuad(384, 0, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["intro_c"] = love.graphics.newQuad(512, 0, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["intro_d"] = love.graphics.newQuad(256, 128, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["intro_e"] = love.graphics.newQuad(384, 128, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["intro_f"] = love.graphics.newQuad(512, 128, spriteX, spriteY, sheetWidth, sheetHeight)
         end,
 
         reset = function(self)

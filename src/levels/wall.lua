@@ -1,6 +1,6 @@
 return function(LevelEntites)
     return function(x, y)
-        print("WALL", x, y, LevelEntites)
+        --print("WALL", x, y, LevelEntites)
         obj = setmetatable({
                 quad = function(self)
                     return LevelEntites.sprites["wall"]

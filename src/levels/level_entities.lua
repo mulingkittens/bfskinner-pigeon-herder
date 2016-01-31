@@ -26,7 +26,7 @@ return function()
         end,
         
         reset = function(self)
-             self.spriteBatch = nil   
+            self.spriteBatch = nil   
         end,
                 
         batchSprites = function(self)

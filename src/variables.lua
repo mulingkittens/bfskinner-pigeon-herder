@@ -27,6 +27,11 @@ maxAudioQueueTime = 0.25
 maxAudioQueueEvents = 4
 fallbackAmbiantAudioFile = "assets/audio/birdchatter.wav"
 
+
+-- particles
+defaultParticleSprite = "assets/puff.png"
+
+-- AI
 ai_noise_weight = 0.1
 ai_weak_reinforce_weight = 0.05
 ai_strong_reinforce_weight = 0.2

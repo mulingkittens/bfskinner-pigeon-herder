@@ -1,5 +1,5 @@
 require("src/variables")
-
+ParticleFactory = require("src/particles")
 Menu = {
 
     main = {
@@ -257,7 +257,7 @@ Menu = {
     
         keypressed = function(key, isrepeat)
         
-            if key == 'escape' then
+            if key == 'escape' or key == 'q' then
                 love.event.quit()
             elseif key == 'n' then
                 if Game.CurrentLevel + 1 > #Game.PlayableLevels then
@@ -294,6 +294,7 @@ Game = {
     },
     
     PlayableLevels = {
+        "intro1",
         "level1",
         "level2",
         "level3",

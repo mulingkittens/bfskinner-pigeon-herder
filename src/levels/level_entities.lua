@@ -16,7 +16,7 @@ return function()
             --[[--self.sprites["grass"] = love.graphics.newQuad(0, 0, 128, 128, sheetWidth, sheetHeight)
             self.sprites["rocks"] = love.graphics.newQuad(128*2, 0, 128, 128, sheetWidth, sheetHeight)
             self.sprites["pen"] = love.graphics.newQuad(128*3, 0, 128, 128, sheetWidth, sheetHeight)
-            self.sprites["wall"] = love.graphics.newQuad(128*3, 128*3, 128, 128, sheetWidth, sheetHeight) 
+            self.sprites["wall"] = love.graphics.newQuad(128*3, 128*3, 128, 128, sheetWidth, sheetHeight)
             self.sprites["goal"] = love.graphics.newQuad(128*3, 128*1, 128, 128, sheetWidth, sheetHeight) --]]--
             self.sprites["grass"] = love.graphics.newQuad(0, 0, spriteX, spriteY, sheetWidth, sheetHeight)
             self.sprites["rocks"] = love.graphics.newQuad(0, 128, spriteX, spriteY, sheetWidth, sheetHeight)
@@ -24,12 +24,12 @@ return function()
             self.sprites["wall"] = love.graphics.newQuad(128, 0, spriteX, spriteY, sheetWidth, sheetHeight)
             self.sprites["goal"] = love.graphics.newQuad(128, 128, spriteX, spriteY, sheetWidth, sheetHeight)
         end,
-        
+
         reset = function(self)
             self.spriteBatch = nil
             self.entities = {}
         end,
-                
+
         batchSprites = function(self)
             local sheetWidth = self.spriteSheet:getWidth()
             local sheetHeight = self.spriteSheet:getHeight()
@@ -44,22 +44,22 @@ return function()
             spriteBatch:flush()
             return spriteBatch
         end,
-        
+
         addEntity = function(self, x, y, obj)
             if not self.entities[x] then
                 self.entities[x] = {}
             end
             self.entities[x][y] = obj
         end,
-        
+
         draw = function(self)
             if not self.spriteBatch then
                 self.spriteBatch = self:batchSprites()
             end
             love.graphics.draw(self.spriteBatch)
         end
-    }, {__index = function(self, index) 
-            return rawget(self, index) or parent[index] 
+    }, {__index = function(self, index)
+            return rawget(self, index) or parent[index]
             end})
 
     obj:quadifySprites()

@@ -38,7 +38,6 @@ return function()
         draw = function(self)
             if not self.spriteBatch then
                 self.spriteBatch = self:batchSprites()
-                print("DRAWED")
             end
             love.graphics.draw(self.spriteBatch)
         end

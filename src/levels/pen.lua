@@ -4,8 +4,9 @@ return function(numPigeons, LevelEntites)
     return function(x, y)
         local newPen = setmetatable({
             
-            x = x,
-            y = y,
+            x = (x-1) * 128,
+            y = (y-1) * 128,
+            
             numPigeons = numPigeons,
             spawnTimer = 0,
             
@@ -42,7 +43,6 @@ return function(numPigeons, LevelEntites)
                     self.spawnTimer = pigeonPenSpawnTime
                     
                     return PigeonFactory(self.x + 75, self.y + 50)
-                    
                 else
                 
                     return nil

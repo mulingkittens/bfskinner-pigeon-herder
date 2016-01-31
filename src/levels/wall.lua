@@ -6,8 +6,8 @@ return function(LevelEntites)
                     return LevelEntites.sprites["wall"]
                 end,
                 
-                x = x,
-                y = y,
+                x = (x-1) * 128,
+                y = (y-1) * 128,
             
                 update = function(self, dt)
             

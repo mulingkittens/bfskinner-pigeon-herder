@@ -6,6 +6,7 @@ return function(LevelEntites)
                 return LevelEntites.sprites["rocks"]
             end
         }
+        
         LevelEntites:addEntity(x, y, obj)
         return obj
     end

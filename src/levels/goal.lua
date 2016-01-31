@@ -2,8 +2,8 @@ return function(LevelEntites)
     return function(x, y)
         local newGoal = setmetatable({
             
-            x = x,
-            y = y,
+            x = (x-1) * 128,
+            y = (y-1) * 128,
             
             update = function(self, dt)
             
@@ -32,7 +32,7 @@ return function(LevelEntites)
             end
 
         })
-        LevelEntites.addEnity(x, y, newGoal)
+        LevelEntites.addEntity(x, y, newGoal)
         return newGoal
     end
 end

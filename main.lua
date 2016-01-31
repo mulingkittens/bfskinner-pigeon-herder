@@ -2,7 +2,7 @@ require("src/variables")
 
 PigeonFactory = require("src/pigeon")
 PenFactory = pcall(require, "src/pen") -- TODO
-ObjectFactory = require("src/objects")
+--ObjectFactory = require("src/objects")
 LoadLevel = require("src/loader")
 
 --level entities
@@ -61,9 +61,9 @@ Game = {
   
   -- TODO(Gordon): Integrate objects with the level loader
   Objects = {
-    activeConstructors = {},
+    activeInstances = {},
     default_constructors = setmetatable({
-            P = Pen(30, level), --Additionally takes number of pigeons to spawn, can override on level specifics
+            P = Pen(10, level), --Additionally takes number of pigeons to spawn, can override on level specifics
             S = Pit(level),
             [" "] = Grass(level), 
             ["|"] = Wall(level),
@@ -153,7 +153,7 @@ function love.update(dt)
     Game.Screen.offset_y = (love.graphics.getHeight() - (Game.Screen.height * Game.Screen.scale)) / 2
 
     -- Update objects
-    for i, object in ipairs(Game.Objects.activeConstuctors) do
+    for i, object in ipairs(Game.Objects.activeInstances) do
         if object.update then
             object:update(dt)
         end

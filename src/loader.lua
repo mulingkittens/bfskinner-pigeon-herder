@@ -76,19 +76,24 @@ local function construct_level(level_cfg, map_grid)
     local default_constructors = Game.Objects.default_constructors
     level_cfg.constructors = level_cfg.constructors or default_constructors
     local level = {}
-    local activeConstuctors = {}
+    local activeInstances = {}
     for x, row in ipairs(map_grid) do
         level[x] = {}
-        for y, char in ipairs(row) do
+        for y, char in ipairs(row) do          
+            local ins = nil
             if level_cfg.constructors[char] then
-                level[x][y] = level_cfg.constructors[char](x, y, default_constructors)
+                ins = level_cfg.constructors[char](x, y, default_constructors)
             else
-                level[x][y] = default_constructors[char](x, y)
+                ins = default_constructors[char](x, y)
             end
-            activeConstuctors[#activeConstuctors+1] = level[x][y]   
+            level[x][y] = ins
+            
+            if ins then
+                activeInstances[#activeInstances+1] = ins  
+            end
         end
     end
-    Game.Objects.activeConstuctors = activeConstuctors
+    Game.Objects.activeInstances = activeInstances
     return level
 end
 

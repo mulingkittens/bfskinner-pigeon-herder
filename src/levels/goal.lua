@@ -27,6 +27,27 @@ return function(LevelEntites)
             
             end,
             
+            capture_pigeon = function(self)
+               
+                local goalRect = Rect(self.x, self.y, 150, 150)
+                
+                for i, pigeon in ipairs(Game.Pigeons) do
+                    
+                    local pigeonRect = Rect(pigeon.x, pigeon.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+                    
+                    if goalRect:intersects(pigeonRect) then
+                        
+                        Game.LevelState.capturedPigeons = Game.LevelState.capturedPigeons + 1
+                        
+                        -- Remove pigeon from the game
+                        table.remove(Game.Pigeons, i)
+                        
+                    end
+                    
+                end
+                
+            end
+            
         }, {
 
             __tostring = function(self)

@@ -35,8 +35,30 @@ return function(numPigeons, LevelEntites)
             end,
         
             spawn_pigeon = function(self)
-
-                if (self.spawnTimer == 0) and (self.numPigeons > 0) then
+                local spawnRect = Rect(self.x + 75, self.y + 50, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+                local spawnLocationAvailable = true
+                
+                for i, pigeon in ipairs(Game.Pigeons) do
+                    local pigeonRect = Rect(pigeon.x, pigeon.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+                    if spawnRect:intersects(pigeonRect) then
+                        spawnLocationAvailable = false
+                    end
+                end
+                
+                if (self.spawnTimer == 0) and (self.numPigeons > 0) and (spawnLocationAvailable) then
+                    
+                    self.numPigeons = self.numPigeons - 1
+                    
+                    self.spawnTimer = pigeonPenSpawnTime
+                    
+                    return PigeonFactory(self.x + 75, self.y + 50)
+                    
+                else
+                
+                    return nil
+                
+                end
+                --[[--if (self.spawnTimer == 0) and (self.numPigeons > 0) then
                     
                     self.numPigeons = self.numPigeons - 1
                     
@@ -47,7 +69,7 @@ return function(numPigeons, LevelEntites)
                 
                     return nil
                 
-                end
+                end--]]--
                 
             end
             

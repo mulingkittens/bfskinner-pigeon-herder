@@ -121,7 +121,10 @@ function love.load(args)
     if not debug then
         Game.Debug = {}
     end  
-    
+
+    -- seed random number generator
+    love.math.setRandomSeed(love.timer.getTime())
+
     -- Default background color
     love.graphics.setBackgroundColor(255, 255, 255)
     
@@ -160,13 +163,18 @@ function love.update(dt)
             object:update(dt)
         end
     
-        -- Spaw pigeons from pen objects
+        -- Spawn pigeons from pen objects
         if tostring(object) == "pen" then
             local pigeons = Game.Pigeons
             newPigeon = object:spawn_pigeon()
             if newPigeon then
                 pigeons[#pigeons + 1] = newPigeon
             end
+        end
+        
+        -- Capture pigeons from goal objects
+        if tostring(object) == "goal" then
+            object:capture_pigeon()
         end
     end
     

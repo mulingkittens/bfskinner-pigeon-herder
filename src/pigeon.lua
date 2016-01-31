@@ -1,4 +1,5 @@
 require("src/util")
+AIFactory = require("src/ai")
 
 local state = {
     alive = 0,
@@ -44,19 +45,9 @@ local function create_move_action(dx, dy)
     end
 end
 
-local Action = {}
+-- Action used by pigeon.lua and ai.lua
+Action = {}
 
-Action.think = function(self, dt, other_pigeons)
-    -- Pick a random action to do
-
-    -- Select the next action for the pigeon
-    self.action = self:selectNextAction()
-    
-    -- Create a variying action time
-    actionTimeVariance = (math.random() * 1) - 0.5
-    self.currentActionTime = pigeonActionTime + actionTimeVariance
-    return true
-end
 Action.move_up = create_move_action(0, -1)
 Action.move_down = create_move_action(0, 1)
 Action.move_left = create_move_action(-1, 0)
@@ -74,10 +65,10 @@ Action.flap = function(self, dt, other_pigeons)
     return true
 end
 
-local ActionNames = table_key_index(Action)
+-- ActionNames used by pigeon.lua and ai.lua
+ActionNames = table_key_index(Action)
 
 local ActionColors = {
-    think = { 0, 0, 0, 0, },
     move_up = { 16, 16, 32, 255, },
     move_down = { 32, 32, 64, 255, },
     move_left = { 48, 48, 96, 255, },
@@ -94,11 +85,12 @@ return function(x, y)
     local new_pigeon = setmetatable({
      
         currentState = state.alive,
-        action = Action.think,
+        action = nil,
         currentActionTime = 0,
         x = x,
         y = y,
         foodLevel = 0,
+        feeding = false,
         influenceTable = {},
 
         initialise = function(self, dt)
@@ -109,6 +101,9 @@ return function(x, y)
             for _, action in pairs(Action) do
                 self.influenceTable[action] = 0
             end
+
+            self.ai = AIFactory()
+            self:setNextAction()
         end,
         
         update = function(self, dt)
@@ -116,6 +111,12 @@ return function(x, y)
             -- if the pigeon has died return imediately
             if self.currentState == state.dead then
                 return
+            end
+
+            -- reinforce ai when feeding
+            if self.feeding then
+                self.ai:reinforce_current_pattern()
+                self.feeding = false
             end
 
             -- decrement food level
@@ -138,8 +139,8 @@ return function(x, y)
             -- decrement current action time
             self.currentActionTime = self.currentActionTime - dt
             if failed or self.currentActionTime <= 0 then
-                self.action = Action.think
-                self.currentActionTime = 0
+                self.ai:finish_current_action()
+                self:setNextAction()
             end
         end,
      
@@ -165,8 +166,9 @@ return function(x, y)
                 local action_name = ActionNames[self.action]
                 local action_time = string.format('%0.1f', self.currentActionTime)
                 love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
-                love.graphics.print("Food:" .. self.foodLevel, self.x -10, self.y - 30)
-                love.graphics.print("Influence:" .. self.influenceTable[Action.move_down_right], self.x -10, self.y - 40)
+                love.graphics.print("Pattern: " .. tostring(self.ai.active_pattern_name), self.x -10, self.y - 30)
+                --love.graphics.print("Food:" .. self.foodLevel, self.x -10, self.y - 30)
+                --love.graphics.print("Influence:" .. self.influenceTable[Action.move_down_right], self.x -10, self.y - 40)
                 love.graphics.setColor(r, g, b, a)
             end
             if Game.Debug.draw_bounding_boxes then
@@ -183,6 +185,8 @@ return function(x, y)
             if self.currentState == state.dead then
                 return
             end
+
+            self.feeding = true
 
             -- increment the influence table for the current action
             self.influenceTable[self.action] = self.influenceTable[self.action] + pigeonInfluencePerClick
@@ -243,6 +247,15 @@ return function(x, y)
             end
             ]]
         end,
+
+        setNextAction = function(self)
+            -- Select the next action for the pigeon
+            self.action = self.ai:get_current_action()
+
+            -- Create a variying action time
+            actionTimeVariance = (math.random() * 1) - 0.5
+            self.currentActionTime = pigeonActionTime + actionTimeVariance
+        end,
         
     }, {
 
@@ -253,4 +266,3 @@ return function(x, y)
     new_pigeon:initialise()
     return new_pigeon
 end
-

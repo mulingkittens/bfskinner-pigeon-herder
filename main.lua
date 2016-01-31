@@ -27,6 +27,7 @@ Menu = {
         
             if key == 'space' then
                 --LoadLevel requires Game in scope
+                Game:reset()
                 Game.CurrentLevel = 1
                 Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
                 Game.Menu = Menu.play
@@ -233,6 +234,10 @@ Menu = {
                 if not pigeon:isAlive() then
                     table.remove(Game.Pigeons, i)
                     
+                    -- Increment level state
+                    Game.LevelState.deadPigeons = Game.LevelState.deadPigeons + 1
+                    Game.LevelState.remainingPigeons = Game.LevelState.remainingPigeons - 1
+                    
                     GetAudioManager():sendEvent(pigeon, "coo")
                     local particleSystems = Game.ParticleSystems
                     particleSystems[#particleSystems + 1] = ParticleFactory(pigeon.x, pigeon.y)
@@ -244,12 +249,17 @@ Menu = {
             for i, particleSystem in ipairs(Game.ParticleSystems) do
                 particleSystem:update(dt)
             end
-            
 
             -- Decrement the feed radius timer
             feedRadiusShowingTimer = feedRadiusShowingTimer - dt;
             if feedRadiusShowingTimer <= 0 then
                 feedRadiusShowingTimer = 0
+            end
+            
+            -- Update level state
+            if Game.LevelState.remainingPigeons < (Game.LevelState.requiredPigeons - Game.LevelState.capturedPigeons) then
+                Game:reset()
+                Game.Menu = Menu.gameover
             end
            
         end,
@@ -280,6 +290,14 @@ Menu = {
             if feedRadiusShowingTimer > 0 then
                 love.graphics.draw(Game.Sprites.FeedRadius, feedRadiusX, feedRadiusY)
             end
+            
+            -- Draw level state
+            
+            remainingPigeonsDisplay = "Remaining pigeons: " .. Game.LevelState.remainingPigeons
+            capturedPigeonsDisplay = Game.LevelState.capturedPigeons .. " / " .. Game.LevelState.requiredPigeons .. " Pigeons Captured"
+            
+            love.graphics.print(remainingPigeonsDisplay, 10, 10)
+            love.graphics.print(capturedPigeonsDisplay, 1150, 10)
             
         end,
         
@@ -419,10 +437,11 @@ Game = {
     -- Level state
     LevelState = {
         timeRunning = 0,
-        totalPigeons = 10,
+        remainingPigeons = 0,
+        requiredPigeons = 0,
         deadPigeons = 0,
         capturedPigeons = 0,
-        ambientAudio = false,
+        ambientAudio = false
     },
 
     -- Pigeons
@@ -438,9 +457,11 @@ Game = {
         self.Pigeons = {}
         self.LevelState =  {
             timeRunning = 0,
-            totalPigeons = 10,
+            remainingPigeons = 0,
+            requiredPigeons = 0,
             deadPigeons = 0,
-            capturedPigeons = 0
+            capturedPigeons = 0,
+            ambientAudio = false
         }
         self.Level:reset()
         self.Objects:reset()

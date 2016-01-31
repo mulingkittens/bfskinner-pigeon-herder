@@ -15,6 +15,6 @@ map = [[
 
 constructors = {
         P = Pen(4, level),
-        G = Goal(4, level)
+        G = Goal(2, level)
     }
 }

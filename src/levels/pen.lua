@@ -1,6 +1,8 @@
 require("src/util")
 
 return function(numPigeons, LevelEntites)
+    -- Update level state with number of pigeons
+    Game.LevelState.remainingPigeons = Game.LevelState.remainingPigeons + numPigeons
     return function(x, y)
         local newPen = setmetatable({
             

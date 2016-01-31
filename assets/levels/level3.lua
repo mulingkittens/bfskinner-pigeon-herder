@@ -14,8 +14,8 @@ map = [[
 ]],
 
 constructors = {
-        A = Pen(2, level),
-        B = Pen(2, level),
+        A = Pen(4, level),
+        B = Pen(4, level),
         E = Goal(2, level),
         F = Goal(2, level)
     }

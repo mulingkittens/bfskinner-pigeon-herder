@@ -1,4 +1,6 @@
 return function(targetPigeons, LevelEntites)
+    -- Update level state with number of pigeons
+    Game.LevelState.requiredPigeons = Game.LevelState.requiredPigeons + targetPigeons
     return function(x, y)
         local newGoal = setmetatable({
             
@@ -47,8 +49,10 @@ return function(targetPigeons, LevelEntites)
                         -- Remove pigeon from the game
                         table.remove(Game.Pigeons, i)
                         
-                        -- Increment captured pigeon counter
+                        -- Increment captured pigeon counters
                         self.capturedPigeons =  self.capturedPigeons + 1
+                        Game.LevelState.capturedPigeons = Game.LevelState.capturedPigeons + 1
+                        Game.LevelState.remainingPigeons = Game.LevelState.remainingPigeons - 1
                     end
                     
                 end

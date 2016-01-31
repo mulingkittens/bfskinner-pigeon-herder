@@ -281,6 +281,8 @@ Menu = {
                         draw_bounding_boxes = true,
                     }
                 end
+            elseif key == 'f11' then
+                love.window.setFullscreen(not love.window.getFullscreen(), "desktop")
             end
         end
         

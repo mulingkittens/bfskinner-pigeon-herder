@@ -1,17 +1,24 @@
 require("src/variables")
 
-
 Game = {
-  -- Screen configuration
-  Screen = {
-    -- Coordinate system size
-    width = 1920,
-    height = 1080,
-    -- Scale and offset to fit window
-    scale = 1,
-    offset_x = 0,
-    offset_y = 0,
-  },
+    -- Screen configuration
+    Screen = {
+        -- Coordinate system size
+        width = 1920,
+        height = 1080,
+        -- Scale and offset to fit window
+        scale = 1,
+        offset_x = 0,
+        offset_y = 0,
+    },
+    
+    PlayableLevels = {
+        "level1",
+        "level2",
+        "level3",
+    },
+    
+    CurrentLevel = 1,
 
   -- Debug mode (options are ignored unless "debug" argument is given on command line)
   Debug = {
@@ -91,7 +98,7 @@ Game.Objects = {
 }
 
 --LoadLevel requires Game in scope
-Game.LevelGrid = LoadLevel("level_test")
+Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
 
 feedRadiusShowingTimer = 0
 feedRadiusX = 0
@@ -237,6 +244,11 @@ end
 function love.keypressed(key, isrepeat)
     if key == 'escape' then
         love.event.quit()
+    elseif key == 'n' then
+        Game.CurrentLevel = ((Game.CurrentLevel + 1) % #Game.PlayableLevels) + 1
+        Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
+        Game.Level:reset()
+        love.load({})
     end
 end
 

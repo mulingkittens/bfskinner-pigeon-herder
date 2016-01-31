@@ -25,6 +25,10 @@ return function()
             self.sprites["goal"] = love.graphics.newQuad(128, 128, spriteX, spriteY, sheetWidth, sheetHeight)
         end,
         
+        reset = function(self)
+             self.spriteBatch = nil   
+        end,
+                
         batchSprites = function(self)
             local sheetWidth = self.spriteSheet:getWidth()
             local sheetHeight = self.spriteSheet:getHeight()

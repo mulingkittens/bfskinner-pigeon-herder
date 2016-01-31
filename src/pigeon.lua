@@ -51,58 +51,92 @@ Action = {}
 Action.move_up = {
     name = 'move_up',
     fn = create_move_action(0, -1),
-    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+    frames = {
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move2 },
+    },
 }
 Action.move_down = {
     name = 'move_down',
     fn = create_move_action(0, 1),
-    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+    frames = {
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move2 },
+    },
 }
 Action.move_left = {
     name = 'move_left',
     fn = create_move_action(-1, 0),
-    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+    frames = {
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move2 },
+    },
 }
 Action.move_right = {
     name = 'move_right',
     fn = create_move_action(1, -0),
-    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+    frames = {
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move2 },
+    },
 }
 Action.move_up_left = {
     name = 'move_up_left',
     fn = create_move_action(-1, -1),
-    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+    frames = {
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move2 },
+    },
 }
 Action.move_up_right = {
     name = 'move_up_right',
     fn = create_move_action(1, -1),
-    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+    frames = {
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move2 },
+    },
 }
 Action.move_down_left = {
     name = 'move_down_left',
     fn = create_move_action(-1, 1),
-    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+    frames = {
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move2 },
+    },
 }
 Action.move_down_right = {
     name = 'move_down_right',
     fn = create_move_action(1, 1),
-    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+    frames = {
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.4, sprite = Game.Sprites.Pigeon.move2 },
+    },
 }
-
 Action.peck = {
     name = 'peck',
     fn = function(self, dt, other_pigeons)
         return true
     end,
-    sprites = { Game.Sprites.Pigeon.peck },
+    frames = {
+        { time = 0.15, sprite = Game.Sprites.Pigeon.peck },
+        { time = 0.1, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.15, sprite = Game.Sprites.Pigeon.peck },
+        { time = 0.3, sprite = Game.Sprites.Pigeon.move1 },
+    },
 }
-
 Action.flap = {
     name = 'flap',
     fn = function(self, dt, other_pigeons)
         return true
     end,
-    sprites = { Game.Sprites.Pigeon.flap },
+    frames = {
+        { time = 0.1, sprite = Game.Sprites.Pigeon.hop },
+        { time = 0.05, sprite = Game.Sprites.Pigeon.move2 },
+        { time = 0.1, sprite = Game.Sprites.Pigeon.hop },
+        { time = 0.05, sprite = Game.Sprites.Pigeon.move2 },
+        { time = 0.1, sprite = Game.Sprites.Pigeon.hop },
+        { time = 0.3, sprite = Game.Sprites.Pigeon.move2 },
+    },
 }
 
 return function(x, y)
@@ -111,6 +145,8 @@ return function(x, y)
         currentState = state.alive,
         action = nil,
         currentActionTime = 0,
+        frameTimer = 0,
+        frameIndex = 1,
         x = x,
         y = y,
         foodLevel = 0,
@@ -157,6 +193,17 @@ return function(x, y)
                 end
             end
 
+            -- update the current frame
+            local frame = self.action.frames[self.frameIndex]
+            self.frameTimer = self.frameTimer + dt
+            if self.frameTimer > frame.time then
+                self.frameTimer = self.frameTimer - frame.time
+                self.frameIndex = self.frameIndex + 1
+                while self.frameIndex > #self.action.frames do
+                    self.frameIndex = self.frameIndex - #self.action.frames
+                end
+            end
+
             -- run the current action (unless it fails)
             local failed = not self.action.fn(self, dt)
 
@@ -171,10 +218,8 @@ return function(x, y)
         draw = function(self, Game, dt)
 
             -- draw pigeon
-            local draw = function()
-                love.graphics.draw(Game.Sprites.Pigeon.move1, self.x, self.y)
-            end
-            draw()
+            local frame = self.action.frames[self.frameIndex]
+            love.graphics.draw(frame.sprite, self.x, self.y)
 
             -- debug output
             if Game.Debug.draw_actions then
@@ -268,6 +313,9 @@ return function(x, y)
         setNextAction = function(self)
             -- Select the next action for the pigeon
             self.action = self.ai:get_current_action()
+            while self.frameIndex > #self.action.frames do
+                self.frameIndex = self.frameIndex - #self.action.frames
+            end
 
             -- Create a variying action time
             actionTimeVariance = (math.random() * 1) - 0.5

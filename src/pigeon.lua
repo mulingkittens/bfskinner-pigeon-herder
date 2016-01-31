@@ -64,6 +64,7 @@ Action.move_down_left = create_move_action(-1, 1)
 Action.move_down_right = create_move_action(1, 1)
 
 Action.peck = function(self, dt, other_pigeons)
+    GetAudioManager():sendEvent(self, "peck")
     return true
 end
 
@@ -107,6 +108,9 @@ return function(x, y)
             for _, action in pairs(Action) do
                 self.influenceTable[action] = 0
             end
+            GetAudioManager():registerEvents(self, {
+                {"peck", "play", "peck.wav"},
+            })
         end,
         
         update = function(self, dt)

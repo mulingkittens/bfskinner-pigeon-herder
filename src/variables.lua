@@ -18,3 +18,7 @@ pigeonInfluenceMax = 100
 pigeonInfluenceUpperThreshold = 75
 pigeonInfluenceLowerThreshold = 25
 pigeonInfluenceDecrement = 0.1
+
+-- Audio junk
+maxAudioQueueTime = 0.25 --seconds
+maxAudioQueueEvents = 4

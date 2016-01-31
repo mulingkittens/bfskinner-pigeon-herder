@@ -4,6 +4,7 @@ PigeonFactory = require("src/pigeon")
 PenFactory = pcall(require, "src/pen") -- TODO
 ObjectFactory = require("src/objects")
 LoadLevel = require("src/loader")
+GetAudioManager = require("src/audio")
 
 Game = {
   -- Screen configuration
@@ -157,6 +158,9 @@ function love.update(dt)
     if feedRadiusShowingTimer <= 0 then
         feedRadiusShowingTimer = 0
     end
+
+    -- pump the audio event queue
+    GetAudioManager():update()
 end
 
 function love.draw(dt)

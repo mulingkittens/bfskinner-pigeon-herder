@@ -1,8 +1,7 @@
---
+--[[
 -- Level loader for "B.F. Skinner, Pigeon Fodder"
 -- Sat 30 Jan 05:25:33 GMT 2016
 
---[[
 --This details the level map format
 
    A map is a simple ASCII grid, layed out as follows
@@ -18,7 +17,7 @@ git stash
 For each square on the grid in the map, The given ASCII character is looked up in the engine's `map_items` module,
 and indexed for the given character.
 If the given character's key exists in the table its value (any callable) is called with the tuple (x, y, existing_constructors).
-The called function is expected to return a new Game object which is the placed on a new grid at the same coordinate
+The called function is expected to return a new Game object which is then placed on a new grid at the same coordinate
 
 The following items are predefined and can be overriden:
 
@@ -73,11 +72,15 @@ end
 local function construct_level(level_cfg, map_grid)
     local default_constructors = Game.Objects.default_constructors
     level_cfg.constructors = level_cfg.constructors or default_constructors
+    level_cfg.ambientAudio = level_cfg.ambientAudio or
+            love.audio.newSource(fallbackAmbiantAudioFile, 'stream')
+    Game.LevelState.ambientAudio = level_cfg.ambientAudio
+    Game.LevelState.ambientAudio:setLooping(true)
     local level = {}
     local activeInstances = {}
     for y, row in ipairs(map_grid) do
         level[y] = {}
-        for x, char in ipairs(row) do          
+        for x, char in ipairs(row) do
             local ins = nil
             if level_cfg.constructors[char] then
                 ins = level_cfg.constructors[char](x, y, default_constructors)
@@ -85,9 +88,9 @@ local function construct_level(level_cfg, map_grid)
                 ins = default_constructors[char](x, y)
             end
             level[y][x] = ins
-            
+
             if ins then
-                activeInstances[#activeInstances+1] = ins  
+                activeInstances[#activeInstances+1] = ins
             end
         end
     end
@@ -97,6 +100,8 @@ end
 
 
 return function(level_name)
+    -- this is the real level constructor that looks up the level
+    -- name, parses and instantiates the map, and its objects.
     local level_cfg = load_level_file(level_name)
     for k, v in pairs(level_cfg) do print(k, v) end
     local map_grid = parse_map(level_cfg.map)

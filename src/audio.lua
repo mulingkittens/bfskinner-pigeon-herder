@@ -76,7 +76,13 @@ local GetAudioManager = function()
                     audio_sources[obj][event] = {
                         source = source,
                         callback = function()
-                            source:setDirection(obj.x or 0.5, obj.y or 0.5)
+                            local x = obj.x
+                            if x then
+                                local w = love.graphics.getWidth()
+                                source:setPosition((x - (0.5 * w)) / (0.5 * w), 0)
+                            end
+                            -- Add some slight pitch variation so that it does not become quickly annoying
+                            source:setPitch(1 + (math.random() / (defaultPitchVariation or 20)))
                             self[action](self, obj.AudioSources[file])
                         end
                     }
@@ -106,7 +112,6 @@ local GetAudioManager = function()
                         audio_sources[obj][event].callback()
                     elseif type(event) == 'table' then
                         error("notimplemented", 2)
-                        --FIXME lookup Volume and position in the table here
                     end
                 end
             end,

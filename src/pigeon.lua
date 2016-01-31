@@ -133,6 +133,7 @@ Action.peck = {
 Action.flap = {
     name = 'flap',
     fn = function(self, dt, other_pigeons)
+        GetAudioManager():sendEvent(self, "flap")
         return true
     end,
     frames = {
@@ -173,6 +174,7 @@ return function(x, y)
             self:setNextAction()
             GetAudioManager():registerEvents(self, {
                 {"peck.wav", "peck", "play",},
+                {"flap.wav", "flap", "play",},
             })
         end,
         

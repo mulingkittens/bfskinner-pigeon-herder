@@ -49,14 +49,25 @@ Game = {
         capturedPigeons = 0
     },
 
-  -- Pigeons
-  Pigeons = {},
+    -- Pigeons
+    Pigeons = {},
+
+    -- Level
+    LevelGrid = false,
+      
+    reset = function(self)
+        self.Pigeons = {}
+        self.LevelState =  {
+            timeRunning = 0,
+            totalPigeons = 10,
+            deadPigeons = 0,
+            capturedPigeons = 0
+        }
+        self.Level:reset()
+        self.Objects:reset()
+        self.LevelGrid = LoadLevel(self.PlayableLevels[self.CurrentLevel])
+        end
   
-  -- Obejcts
-  Objects = {},
-  
-  -- Level
-  LevelGrid = false,
 }
 
 -- Import other modules
@@ -81,6 +92,10 @@ Game.Level = level
 
 -- TODO(Gordon): Integrate objects with the level loader
 Game.Objects = {
+    reset = function(self)
+        self.activeInstances = {}
+    end,
+    
     activeInstances = {},
     default_constructors = setmetatable({
         P = Pen(20, level), --Additionally takes number of pigeons to spawn, can override on level specifics
@@ -105,6 +120,8 @@ feedRadiusX = 0
 feedRadiusY = 0
 
 function love.load(args)
+    Game.configArgs = args
+    
     -- Look for args
     local fullscreen = false
     local debug = false
@@ -144,27 +161,7 @@ function love.load(args)
 
     -- Default background color
     love.graphics.setBackgroundColor(255, 255, 255)
-    
-    -- Initialise level objects
-    --[[--local objects = Game.Objects
-    objects[#objects + 1] = ObjectFactory.create_pen(150, 750, 4)
-    
-    for i = 0, 11 do
-        objects[#objects + 1] = ObjectFactory.create_barrier(i * 150, 0)
-        objects[#objects + 1] = ObjectFactory.create_barrier(i * 150, 900)
-    end
-    
-    for i = 1, 5 do
-        objects[#objects + 1] = ObjectFactory.create_barrier(0, i * 150)
-        objects[#objects + 1] = ObjectFactory.create_barrier(1650, i * 150)
-    end
-    
-    for i = 5, 6 do
-        objects[#objects + 1] = ObjectFactory.create_barrier(i * 150, 450)
-    end
-    
-    objects[#objects + 1] = ObjectFactory.create_goal(1500, 150)--]]--
-    
+
 end
     
 function love.update(dt)
@@ -247,8 +244,8 @@ function love.keypressed(key, isrepeat)
     elseif key == 'n' then
         Game.CurrentLevel = ((Game.CurrentLevel + 1) % #Game.PlayableLevels) + 1
         Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
-        Game.Level:reset()
-        love.load({})
+        Game:reset()
+        love.load(Game.configArgs or {})
     end
 end
 

@@ -1,5 +1,6 @@
 require("src/variables")
 
+
 Game = {
   -- Screen configuration
   Screen = {
@@ -52,6 +53,7 @@ Game = {
 }
 
 -- Import other modules
+GetAudioManager = require("src/audio")
 PigeonFactory = require("src/pigeon")
 PenFactory = pcall(require, "src/pen") -- TODO
 --ObjectFactory = require("src/objects")
@@ -201,6 +203,9 @@ function love.update(dt)
     if feedRadiusShowingTimer <= 0 then
         feedRadiusShowingTimer = 0
     end
+
+    -- render audio last after events have been processed
+    GetAudioManager():update()
 end
 
 function love.draw(dt)

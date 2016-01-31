@@ -120,6 +120,7 @@ Action.move_down_right = {
 Action.peck = {
     name = 'peck',
     fn = function(self, dt, other_pigeons)
+        GetAudioManager():sendEvent(self, "peck")
         return true
     end,
     frames = {
@@ -170,6 +171,9 @@ return function(x, y)
 
             self.ai = AIFactory()
             self:setNextAction()
+            GetAudioManager():registerEvents(self, {
+                {"peck.wav", "peck", "play",},
+            })
         end,
         
         update = function(self, dt)

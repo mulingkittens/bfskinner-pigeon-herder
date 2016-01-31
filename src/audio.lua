@@ -44,14 +44,12 @@ GetAudioManager = function()
     else
         local audio_sources = setmetatable({}, {
             __index = function(self, idx)
-                print("audio_sources.__index", self, idx)
                 local t = rawget(self, assert(idx))
                 if t == nil then
                     t = {}
                     rawset(self, idx, t)
                     print("Set default dict")
                 end
-                print("returning!")
                 return t
             end
         })

@@ -41,6 +41,11 @@ local function create_move_action(dx, dy)
         self.x = new_x
         self.y = new_y
         self.rect = new_rect
+        if self.frameFacingLeft and dx > 0 then
+            self.frameFacingLeft = false
+        elseif not self.frameFacingLeft and dx < 0 then
+            self.frameFacingLeft = true
+        end
         return true
     end
 end
@@ -147,6 +152,7 @@ return function(x, y)
         currentActionTime = 0,
         frameTimer = 0,
         frameIndex = 1,
+        frameFacingLeft = true,
         x = x,
         y = y,
         foodLevel = 0,
@@ -219,7 +225,17 @@ return function(x, y)
 
             -- draw pigeon
             local frame = self.action.frames[self.frameIndex]
-            love.graphics.draw(frame.sprite, self.x, self.y)
+            local sx, sy, ox, oy;
+            if self.frameFacingLeft then
+                sx = 1
+                ox = 1
+            else
+                sx = -1
+                ox = frame.sprite:getWidth()
+            end
+            sy = 1
+            oy = 0
+            love.graphics.draw(frame.sprite, self.x, self.y, 0, sx, sy, ox, oy)
 
             -- debug output
             if Game.Debug.draw_actions then

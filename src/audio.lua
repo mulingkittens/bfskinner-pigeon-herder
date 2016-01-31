@@ -1,6 +1,19 @@
 local audio_manager = false -- private scoped singleton
 local newSource = love.audio.newSource
 
+local function DefaultDict(default_constructor)
+    return setmetatable({}, {
+        __index = function(self, idx)
+            local v = rawget(self, assert(idx))
+            if v == nil then
+                v = default_constructor()
+                rawset(self, idx, v)
+            end
+            return v
+        end
+    })
+end
+
 local function DeadlineMaxQueue(max_len, max_wait)
     local max_len = max_len or maxAudioQueueEvents
     local max_wait = max_wait or maxAudioQueueEvents
@@ -14,9 +27,11 @@ local function DeadlineMaxQueue(max_len, max_wait)
             }
             tail = tail + 1
             if tail - head > max_len then
+                -- prefer new events
                 self:pop()
             end
         end,
+
         pop = function(self)
             local time = love.timer.getTime()
             local pair = self[head]
@@ -36,34 +51,14 @@ local function DeadlineMaxQueue(max_len, max_wait)
     }
 end
 
-GetAudioManager = function()
+local GetAudioManager = function()
     -- Returns the audio manager singleton that manages loading, events
     -- and playing streams
     if audio_manager then
         return audio_manager
     else
-        local audio_sources = setmetatable({}, {
-            __index = function(self, idx)
-                local t = rawget(self, assert(idx))
-                if t == nil then
-                    t = {}
-                    rawset(self, idx, t)
-                    print("Set default dict")
-                end
-                return t
-            end
-        })
-
-        local pending_events = setmetatable({}, {
-            __index = function(self, idx)
-                local t = rawget(self, assert(idx))
-                if t == nil then
-                    t = DeadlineMaxQueue()
-                    rawset(self, idx, t)
-                end
-                return t
-            end
-        })
+        local audio_sources = DefaultDict(function() return {} end)
+        local pending_events = DefaultDict(DeadlineMaxQueue)
 
         audio_manager = setmetatable({
             registerEvents = function(self, obj, event_triples)

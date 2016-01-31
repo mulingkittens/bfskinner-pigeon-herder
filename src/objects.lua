@@ -171,4 +171,3 @@ create_goal = function(x, y)
 end
 
 }
-

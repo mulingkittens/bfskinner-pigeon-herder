@@ -148,13 +148,18 @@ function love.update(dt)
     for i, object in ipairs(Game.Objects) do
         object:update(dt)
     
-        -- Spaw pigeons from pen objects
+        -- Spawn pigeons from pen objects
         if tostring(object) == "pen" then
             local pigeons = Game.Pigeons
             newPigeon = object:spawn_pigeon()
             if newPigeon then
                 pigeons[#pigeons + 1] = newPigeon
             end
+        end
+        
+        -- Capture pigeons from goal objects
+        if tostring(object) == "goal" then
+            object:capture_pigeon()
         end
     end
     

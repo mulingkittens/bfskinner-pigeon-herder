@@ -265,3 +265,41 @@ return function(x, y)
     new_pigeon:initialise()
     return new_pigeon
 end
+
+-- TODO(Gordon): Select action algorithm
+
+--[[
+
+            local actionPotentials = {}
+            
+            for _, action in pairs(Action) do
+               
+               actionPotentials[action] = self.influenceTable[action] * pigeonActionPotentialMultiplyer
+               
+            end
+        
+            local actionChances = {}
+            
+            for _, action in pairs(Action) do
+               
+               actionChances[action] = math.random() * actionPotentials[action]
+                
+            end
+            
+            local highestChance = 0
+            local chosenAction = 0
+            
+            for action, chance in pairs(actionChances) do
+               
+               if chance > highestChance then
+               
+                    highestChance = chance
+                    chosenAction = action
+               
+               end
+                
+            end
+            
+            return chosenAction
+
+]]

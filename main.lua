@@ -254,7 +254,17 @@ Menu = {
                 print("SKIPPING TO", Game.PlayableLevels[Game.CurrentLevel])
                 Game:reset()
                 love.load(Game.configArgs or {})
+            elseif key == 'f3' then
+                  if Game.Debug.draw_actions  ~= nil then
+                      Game.Debug = {}
+                  else
+                      Game.Debug = {
+                          draw_actions = true,
+                          draw_bounding_boxes = true,
+                      }
+                  end
             end
+
         
         end
         

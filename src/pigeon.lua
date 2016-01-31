@@ -149,7 +149,18 @@ Action.flap = {
         { time = 0.3, sprite = Game.Sprites.Pigeon.move2 },
     },
 }
-
+Action.glance = {
+    name = 'glance',
+    fn = function(self, dt, other_pigeons)
+        GetAudioManager():sendEvent(self, nil)
+        return true
+    end,
+    frames = {
+        { time = 0.3, sprite = Game.Sprites.Pigeon.move1 },
+        { time = 0.3, sprite = Game.Sprites.Pigeon.look },
+        { time = 0.3, sprite = Game.Sprites.Pigeon.move1 },
+    },
+}
 return function(x, y)
     local new_pigeon = setmetatable({
      

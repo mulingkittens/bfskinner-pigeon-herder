@@ -186,6 +186,7 @@ return function(x, y)
             GetAudioManager():registerEvents(self, {
                 {"peck.wav", "peck", "play",},
                 {"flap.wav", "flap", "play",},
+                {"coo.wav", "coo", "play",},
             })
         end,
         

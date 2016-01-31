@@ -33,7 +33,7 @@ return function(LevelEntites)
                 
                 for i, pigeon in ipairs(Game.Pigeons) do
                     
-                    local pigeonRect = Rect(pigeon.x, pigeon.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+                    local pigeonRect = Rect(pigeon.x, pigeon.y, pigeon.rect.w, pigeon.rect.h)
                     
                     if goalRect:intersects(pigeonRect) then
                         

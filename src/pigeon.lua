@@ -48,37 +48,61 @@ end
 -- Action used by pigeon.lua and ai.lua
 Action = {}
 
-Action.move_up = create_move_action(0, -1)
-Action.move_down = create_move_action(0, 1)
-Action.move_left = create_move_action(-1, 0)
-Action.move_right = create_move_action(1, -0)
-Action.move_up_left = create_move_action(-1, -1)
-Action.move_up_right = create_move_action(1, -1)
-Action.move_down_left = create_move_action(-1, 1)
-Action.move_down_right = create_move_action(1, 1)
+Action.move_up = {
+    name = 'move_up',
+    fn = create_move_action(0, -1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_down = {
+    name = 'move_down',
+    fn = create_move_action(0, 1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_left = {
+    name = 'move_left',
+    fn = create_move_action(-1, 0),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_right = {
+    name = 'move_right',
+    fn = create_move_action(1, -0),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_up_left = {
+    name = 'move_up_left',
+    fn = create_move_action(-1, -1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_up_right = {
+    name = 'move_up_right',
+    fn = create_move_action(1, -1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_down_left = {
+    name = 'move_down_left',
+    fn = create_move_action(-1, 1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_down_right = {
+    name = 'move_down_right',
+    fn = create_move_action(1, 1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
 
-Action.peck = function(self, dt, other_pigeons)
-    return true
-end
+Action.peck = {
+    name = 'peck',
+    fn = function(self, dt, other_pigeons)
+        return true
+    end,
+    sprites = { Game.Sprites.Pigeon.peck },
+}
 
-Action.flap = function(self, dt, other_pigeons)
-    return true
-end
-
--- ActionNames used by pigeon.lua and ai.lua
-ActionNames = table_key_index(Action)
-
-local ActionColors = {
-    move_up = { 16, 16, 32, 255, },
-    move_down = { 32, 32, 64, 255, },
-    move_left = { 48, 48, 96, 255, },
-    move_right = { 64, 64, 128, 255, },
-    move_up_left = { 80, 80, 160, 255, },
-    move_up_right = { 96, 96, 192, 255, },
-    move_down_left = { 112, 112, 224, 255, },
-    move_down_right = { 128, 128, 255, 255, },
-    peck = { 0, 192, 0, 255, },
-    flap = { 255, 0, 0, 255, },
+Action.flap = {
+    name = 'flap',
+    fn = function(self, dt, other_pigeons)
+        return true
+    end,
+    sprites = { Game.Sprites.Pigeon.flap },
 }
 
 return function(x, y)
@@ -95,7 +119,7 @@ return function(x, y)
 
         initialise = function(self, dt)
             -- bounding box
-            self.rect = Rect(self.x, self.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+            self.rect = Rect(self.x, self.y, Game.Sprites.Pigeon.move1:getWidth(), Game.Sprites.Pigeon.move1:getHeight())
 
             -- initialise influence table
             for _, action in pairs(Action) do
@@ -134,7 +158,7 @@ return function(x, y)
             end
 
             -- run the current action (unless it fails)
-            local failed = not self:action(dt)
+            local failed = not self.action.fn(self, dt)
 
             -- decrement current action time
             self.currentActionTime = self.currentActionTime - dt
@@ -148,22 +172,15 @@ return function(x, y)
 
             -- draw pigeon
             local draw = function()
-                love.graphics.draw(Game.Sprites.Pigeon, self.x, self.y)
+                love.graphics.draw(Game.Sprites.Pigeon.move1, self.x, self.y)
             end
-            if Game.Debug.draw_actions then
-                local r, g, b, a = love.graphics.getColor()
-                love.graphics.setColor(unpack(ActionColors[ActionNames[self.action]]))
-                draw()
-                love.graphics.setColor(r, g, b, a)
-            else
-                draw()
-            end
+            draw()
 
             -- debug output
             if Game.Debug.draw_actions then
                 local r, g, b, a = love.graphics.getColor()
                 love.graphics.setColor(0, 0, 0, 255)
-                local action_name = ActionNames[self.action]
+                local action_name = self.action.name
                 local action_time = string.format('%0.1f', self.currentActionTime)
                 love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
                 love.graphics.print("Pattern: " .. tostring(self.ai.active_pattern_name), self.x -10, self.y - 30)

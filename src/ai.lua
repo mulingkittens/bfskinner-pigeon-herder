@@ -202,7 +202,7 @@ return function()
             end
             -- Reinforce the short pattern for the current action weakly
             local current_action = self:get_current_action()
-            local current_action_name = ActionNames[current_action]
+            local current_action_name = current_action.name
             local current_action_pattern = self.patterns[current_action_name]
             current_action_pattern.weight = reinforce_weak(current_action_pattern.weight)
         end,

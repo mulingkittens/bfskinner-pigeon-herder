@@ -34,11 +34,11 @@ create_pen = function(x, y, numPigeons)
         end,
     
         spawn_pigeon = function(self)
-            local spawnRect = Rect(self.x + 75, self.y + 50, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+            local spawnRect = Rect(self.x + 40, self.y + 20, Game.Sprites.Pigeon.move1:getWidth(), Game.Sprites.Pigeon.move1:getHeight())
             local spawnLocationAvailable = true
             
             for i, pigeon in ipairs(Game.Pigeons) do
-                local pigeonRect = Rect(pigeon.x, pigeon.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+                local pigeonRect = Rect(pigeon.x, pigeon.y, pigeon.rect.w, pigeon.rect.h)
                 if spawnRect:intersects(pigeonRect) then
                     spawnLocationAvailable = false
                 end
@@ -50,7 +50,7 @@ create_pen = function(x, y, numPigeons)
                 
                 self.spawnTimer = pigeonPenSpawnTime
                 
-                return PigeonFactory(self.x + 75, self.y + 50)
+                return PigeonFactory(self.x + 40, self.y + 20)
                 
             else
             

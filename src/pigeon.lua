@@ -1,11 +1,11 @@
 require("src/util")
+AIFactory = require("src/ai")
 
 local state = {
     alive = 0,
     dying = 1,
     dead = 2
 }
-
 
 local function create_move_action(dx, dy)
     return function(self, dt)
@@ -23,17 +23,17 @@ local function create_move_action(dx, dy)
         for _, other_pigeon in ipairs(Game.Pigeons) do
             if self ~= other_pigeon then
                 if other_pigeon.rect:intersects(new_rect) then
-                    print("Hit Pigeon")
                     return false
                 end
             end
         end
         
         -- Fail if the pigeon wants to move into an object
-        for _, object in ipairs(Game.Objects) do
-            if object:get_occlusion_block():intersects(new_rect) then
-                print("Hit Object")
-                return false
+        for _, object in ipairs(Game.Objects.activeInstances) do
+            if object.get_occlusion_block then
+                if object:get_occlusion_block():intersects(new_rect) then
+                    return false
+                end
             end
         end
         
@@ -45,71 +45,92 @@ local function create_move_action(dx, dy)
     end
 end
 
-local Action = {}
+-- Action used by pigeon.lua and ai.lua
+Action = {}
 
-Action.think = function(self, dt, other_pigeons)
-    -- Pick a random action to do
+Action.move_up = {
+    name = 'move_up',
+    fn = create_move_action(0, -1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_down = {
+    name = 'move_down',
+    fn = create_move_action(0, 1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_left = {
+    name = 'move_left',
+    fn = create_move_action(-1, 0),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_right = {
+    name = 'move_right',
+    fn = create_move_action(1, -0),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_up_left = {
+    name = 'move_up_left',
+    fn = create_move_action(-1, -1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_up_right = {
+    name = 'move_up_right',
+    fn = create_move_action(1, -1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_down_left = {
+    name = 'move_down_left',
+    fn = create_move_action(-1, 1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
+Action.move_down_right = {
+    name = 'move_down_right',
+    fn = create_move_action(1, 1),
+    sprites = { Game.Sprites.Pigeon.move1, Game.Sprites.Pigeon.move2 },
+}
 
-    self.action = self:selectNextAction()
-    self.currentActionTime = 2
-    return true
-end
-Action.move_up = create_move_action(0, -1)
-Action.move_down = create_move_action(0, 1)
-Action.move_left = create_move_action(-1, 0)
-Action.move_right = create_move_action(1, -0)
-Action.move_up_left = create_move_action(-1, -1)
-Action.move_up_right = create_move_action(1, -1)
-Action.move_down_left = create_move_action(-1, 1)
-Action.move_down_right = create_move_action(1, 1)
+Action.peck = {
+    name = 'peck',
+    fn = function(self, dt, other_pigeons)
+        GetAudioManager():sendEvent(self, "peck")
+        return true
+    end,
+    sprites = { Game.Sprites.Pigeon.peck },
+}
 
-Action.peck = function(self, dt, other_pigeons)
-    GetAudioManager():sendEvent(self, "peck")
-    return true
-end
-
-Action.flap = function(self, dt, other_pigeons)
-    return true
-end
-
-local ActionNames = table_key_index(Action)
-
-local ActionColors = {
-    think = { 0, 0, 0, 0, },
-    move_up = { 16, 16, 32, 255, },
-    move_down = { 32, 32, 64, 255, },
-    move_left = { 48, 48, 96, 255, },
-    move_right = { 64, 64, 128, 255, },
-    move_up_left = { 80, 80, 160, 255, },
-    move_up_right = { 96, 96, 192, 255, },
-    move_down_left = { 112, 112, 224, 255, },
-    move_down_right = { 128, 128, 255, 255, },
-    peck = { 0, 192, 0, 255, },
-    flap = { 255, 0, 0, 255, },
+Action.flap = {
+    name = 'flap',
+    fn = function(self, dt, other_pigeons)
+        return true
+    end,
+    sprites = { Game.Sprites.Pigeon.flap },
 }
 
 return function(x, y)
-
     local new_pigeon = setmetatable({
      
         currentState = state.alive,
-        action = Action.think,
+        action = nil,
         currentActionTime = 0,
         x = x,
         y = y,
         foodLevel = 0,
+        feeding = false,
         influenceTable = {},
 
         initialise = function(self, dt)
             -- bounding box
-            self.rect = Rect(self.x, self.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+            self.rect = Rect(self.x, self.y, Game.Sprites.Pigeon.move1:getWidth(), Game.Sprites.Pigeon.move1:getHeight())
 
             -- initialise influence table
             for _, action in pairs(Action) do
                 self.influenceTable[action] = 0
             end
+
+            self.ai = AIFactory()
+            self:setNextAction()
             GetAudioManager():registerEvents(self, {
-                {"peck", "play", "peck.wav"},
+                {"peck.wav", "peck", "play",},
             })
         end,
         
@@ -118,6 +139,12 @@ return function(x, y)
             -- if the pigeon has died return imediately
             if self.currentState == state.dead then
                 return
+            end
+
+            -- reinforce ai when feeding
+            if self.feeding then
+                self.ai:reinforce_current_pattern()
+                self.feeding = false
             end
 
             -- decrement food level
@@ -135,13 +162,13 @@ return function(x, y)
             end
 
             -- run the current action (unless it fails)
-            local failed = not self:action(dt)
+            local failed = not self.action.fn(self, dt)
 
             -- decrement current action time
             self.currentActionTime = self.currentActionTime - dt
             if failed or self.currentActionTime <= 0 then
-                self.action = Action.think
-                self.currentActionTime = 0
+                self.ai:finish_current_action()
+                self:setNextAction()
             end
         end,
      
@@ -149,26 +176,20 @@ return function(x, y)
 
             -- draw pigeon
             local draw = function()
-                love.graphics.draw(Game.Sprites.Pigeon, self.x, self.y)
+                love.graphics.draw(Game.Sprites.Pigeon.move1, self.x, self.y)
             end
-            if Game.Debug.draw_actions then
-                local r, g, b, a = love.graphics.getColor()
-                love.graphics.setColor(unpack(ActionColors[ActionNames[self.action]]))
-                draw()
-                love.graphics.setColor(r, g, b, a)
-            else
-                draw()
-            end
+            draw()
 
             -- debug output
             if Game.Debug.draw_actions then
                 local r, g, b, a = love.graphics.getColor()
                 love.graphics.setColor(0, 0, 0, 255)
-                local action_name = ActionNames[self.action]
+                local action_name = self.action.name
                 local action_time = string.format('%0.1f', self.currentActionTime)
                 love.graphics.print(action_name .. " " .. action_time, self.x - 10, self.y - 20)
-                love.graphics.print("Food:" .. self.foodLevel, self.x -10, self.y - 30)
-                love.graphics.print("Influence:" .. self.influenceTable[Action.move_down_right], self.x -10, self.y - 40)
+                love.graphics.print("Pattern: " .. tostring(self.ai.active_pattern_name), self.x -10, self.y - 30)
+                --love.graphics.print("Food:" .. self.foodLevel, self.x -10, self.y - 30)
+                --love.graphics.print("Influence:" .. self.influenceTable[Action.move_down_right], self.x -10, self.y - 40)
                 love.graphics.setColor(r, g, b, a)
             end
             if Game.Debug.draw_bounding_boxes then
@@ -185,6 +206,8 @@ return function(x, y)
             if self.currentState == state.dead then
                 return
             end
+
+            self.feeding = true
 
             -- increment the influence table for the current action
             self.influenceTable[self.action] = self.influenceTable[self.action] + pigeonInfluencePerClick
@@ -244,6 +267,15 @@ return function(x, y)
                 end
             end
             ]]
+        end,
+
+        setNextAction = function(self)
+            -- Select the next action for the pigeon
+            self.action = self.ai:get_current_action()
+
+            -- Create a variying action time
+            actionTimeVariance = (math.random() * 1) - 0.5
+            self.currentActionTime = pigeonActionTime + actionTimeVariance
         end,
         
     }, {

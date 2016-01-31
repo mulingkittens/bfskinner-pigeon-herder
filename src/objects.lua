@@ -34,14 +34,23 @@ create_pen = function(x, y, numPigeons)
         end,
     
         spawn_pigeon = function(self)
+            local spawnRect = Rect(self.x + 40, self.y + 20, Game.Sprites.Pigeon.move1:getWidth(), Game.Sprites.Pigeon.move1:getHeight())
+            local spawnLocationAvailable = true
             
-            if (self.spawnTimer == 0) and (self.numPigeons > 0) then
+            for i, pigeon in ipairs(Game.Pigeons) do
+                local pigeonRect = Rect(pigeon.x, pigeon.y, pigeon.rect.w, pigeon.rect.h)
+                if spawnRect:intersects(pigeonRect) then
+                    spawnLocationAvailable = false
+                end
+            end
+            
+            if (self.spawnTimer == 0) and (self.numPigeons > 0) and (spawnLocationAvailable) then
                 
                 self.numPigeons = self.numPigeons - 1
                 
                 self.spawnTimer = pigeonPenSpawnTime
                 
-                return PigeonFactory(self.x + 75, self.y + 50)
+                return PigeonFactory(self.x + 40, self.y + 20)
                 
             else
             
@@ -126,6 +135,27 @@ create_goal = function(x, y)
             return Rect(0, 0, 1, 1)
         
         end,
+
+        capture_pigeon = function(self)
+           
+            local goalRect = Rect(self.x, self.y, 150, 150)
+            
+            for i, pigeon in ipairs(Game.Pigeons) do
+                
+                local pigeonRect = Rect(pigeon.x, pigeon.y, Game.Sprites.Pigeon:getWidth(), Game.Sprites.Pigeon:getHeight())
+                
+                if goalRect:intersects(pigeonRect) then
+                    
+                    Game.LevelState.capturedPigeons = Game.LevelState.capturedPigeons + 1
+                    
+                    -- Remove pigeon from the game
+                    table.remove(Game.Pigeons, i)
+                    
+                end
+                
+            end
+            
+        end
         
     }, {
 
@@ -141,4 +171,3 @@ create_goal = function(x, y)
 end
 
 }
-

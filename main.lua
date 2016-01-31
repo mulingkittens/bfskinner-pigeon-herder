@@ -1,10 +1,5 @@
 require("src/variables")
 
-PigeonFactory = require("src/pigeon")
-PenFactory = pcall(require, "src/pen") -- TODO
-ObjectFactory = require("src/objects")
-LoadLevel = require("src/loader")
-GetAudioManager = require("src/audio")
 
 Game = {
   -- Screen configuration
@@ -26,12 +21,26 @@ Game = {
 
   -- Sprites
   Sprites = {
-    Pigeon = love.graphics.newImage('assets/pigeon.png'),
+    Pigeon = {
+        hop = love.graphics.newImage('assets/pigeon/hop.png'),
+        look = love.graphics.newImage('assets/pigeon/look.png'),
+        move1 = love.graphics.newImage('assets/pigeon/move1.png'),
+        move2 = love.graphics.newImage('assets/pigeon/move2.png'),
+        peck = love.graphics.newImage('assets/pigeon/peck.png'),
+    },
     FeedRadius = love.graphics.newImage('assets/feed_radius.png'),
     Pen = love.graphics.newImage('assets/pen.png'),
     Barrier = love.graphics.newImage('assets/barrier.png'),
     Goal = love.graphics.newImage('assets/goal.png')
   },
+  
+    -- Level state
+    LevelState = {
+        timeRunning = 0,
+        totalPigeons = 10,
+        deadPigeons = 0,
+        capturedPigeons = 0
+    },
 
   -- Pigeons
   Pigeons = {},
@@ -41,27 +50,48 @@ Game = {
   
   -- Level
   LevelGrid = false,
-  
-  -- TODO(Gordon): Integrate objects with the level loader
-  --[[
-  Objects = {
-      default_constructors = setmetatable({
-          P = PigeonFactory,
-      },
-      {
-          __index = function(self, idx)
-              return rawget(self, idx) or function() end
-          end
-      })
-  }
-  ]]
 }
 
+-- Import other modules
+GetAudioManager = require("src/audio")
+PigeonFactory = require("src/pigeon")
+PenFactory = pcall(require, "src/pen") -- TODO
+--ObjectFactory = require("src/objects")
+LoadLevel = require("src/loader")
+
+--level entities
+LevelManager = require("src/levels/level_entities")
+Grass = require("src/levels/grass")
+Pit = require("src/levels/pit")
+Wall = require("src/levels/wall")
+Pen = require("src/levels/pen")
+Goal = require("src/levels/goal")
+
+local level = LevelManager()
+--Wrap the Pigeon Factory in a constructor tat should allow it to be added to the sprite batch
+
+Game.Level = level
+
+-- TODO(Gordon): Integrate objects with the level loader
+Game.Objects = {
+    activeInstances = {},
+    default_constructors = setmetatable({
+        P = Pen(10, level), --Additionally takes number of pigeons to spawn, can override on level specifics
+        S = Pit(level),
+        G = Goal(level),
+        [" "] = Grass(level), 
+        ["|"] = Wall(level),
+        ["-"] = Wall(level),
+    },
+    {
+        __index = function(self, idx)
+            return rawget(self, idx) or function() end
+        end
+    })
+}
+
+--LoadLevel requires Game in scope
 Game.LevelGrid = LoadLevel("level_test")
-for k, v in pairs(Game.LevelGrid) do
-    print(k, v, "::::::::")
-end
---blah = require("src/arena")
 
 feedRadiusShowingTimer = 0
 feedRadiusX = 0
@@ -101,12 +131,15 @@ function love.load(args)
     if not debug then
         Game.Debug = {}
     end  
-    
+
+    -- seed random number generator
+    love.math.setRandomSeed(love.timer.getTime())
+
     -- Default background color
     love.graphics.setBackgroundColor(255, 255, 255)
     
     -- Initialise level objects
-    local objects = Game.Objects
+    --[[--local objects = Game.Objects
     objects[#objects + 1] = ObjectFactory.create_pen(150, 750, 4)
     
     for i = 0, 11 do
@@ -123,7 +156,7 @@ function love.load(args)
         objects[#objects + 1] = ObjectFactory.create_barrier(i * 150, 450)
     end
     
-    objects[#objects + 1] = ObjectFactory.create_goal(1500, 150)
+    objects[#objects + 1] = ObjectFactory.create_goal(1500, 150)--]]--
     
 end
     
@@ -135,10 +168,12 @@ function love.update(dt)
     Game.Screen.offset_y = (love.graphics.getHeight() - (Game.Screen.height * Game.Screen.scale)) / 2
 
     -- Update objects
-    for i, object in ipairs(Game.Objects) do
-        object:update(dt)
+    for i, object in ipairs(Game.Objects.activeInstances) do
+        if object.update then
+            object:update(dt)
+        end
     
-        -- Spaw pigeons from pen objects
+        -- Spawn pigeons from pen objects
         if tostring(object) == "pen" then
             local pigeons = Game.Pigeons
             newPigeon = object:spawn_pigeon()
@@ -146,11 +181,21 @@ function love.update(dt)
                 pigeons[#pigeons + 1] = newPigeon
             end
         end
+        
+        -- Capture pigeons from goal objects
+        if tostring(object) == "goal" then
+            object:capture_pigeon()
+        end
     end
     
     -- Update pigeons
     for i, pigeon in ipairs(Game.Pigeons) do
         pigeon:update(dt)
+        
+        -- If pigeon is dead remove him from the game
+        if not pigeon:isAlive() then
+            table.remove(Game.Pigeons, i)
+        end
     end
 
     -- Decrement the feed radius timer
@@ -159,7 +204,7 @@ function love.update(dt)
         feedRadiusShowingTimer = 0
     end
 
-    -- pump the audio event queue
+    -- render audio last after events have been processed
     GetAudioManager():update()
 end
 
@@ -167,7 +212,10 @@ function love.draw(dt)
     love.graphics.push()
     love.graphics.translate(Game.Screen.offset_x, Game.Screen.offset_y)
     love.graphics.scale(Game.Screen.scale, Game.Screen.scale)
-
+    
+    --Draw backgrounds
+    Game.Level:draw()
+    
     -- Draw objects
     for i, object in ipairs(Game.Objects) do
       object:draw(dt)
@@ -197,18 +245,15 @@ function love.mousepressed(x, y, button, istouch)
     local mouseX = x / Game.Screen.scale
     local mouseY = y / Game.Screen.scale
 
-    local pigeonWidth = Game.Sprites.Pigeon:getWidth()
-    local pigeonHeight = Game.Sprites.Pigeon:getHeight()
-
     -- check each pigeon's position relative to the mouse
     for i, pigeon in ipairs(Game.Pigeons) do
 
         local pigeonLeft = pigeon.x
         local pigeonTop = pigeon.y
-        local pigeonRight = pigeon.x + pigeonWidth
-        local pigeonBottom = pigeon.y + pigeonHeight
-        local pigeonCentreX = pigeon.x + (pigeonWidth / 2)
-        local pigeonCentreY = pigeon.y + (pigeonHeight / 2)
+        local pigeonRight = pigeon.x + pigeon.rect.w
+        local pigeonBottom = pigeon.y + pigeon.rect.h
+        local pigeonCentreX = pigeon.x + (pigeon.rect.w / 2)
+        local pigeonCentreY = pigeon.y + (pigeon.rect.h / 2)
 
         if pigeonFeedByRadius then
         

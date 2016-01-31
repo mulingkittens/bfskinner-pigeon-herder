@@ -110,7 +110,7 @@ GetAudioManager = function()
                 for obj, ev in pairs(pending_events) do
                     local event = ev:pop()
                     if type(event) == 'string' then
-                        pcall(audio_sources[obj][event].callback)
+                        audio_sources[obj][event].callback()
                     elseif type(event) == 'table' then
                         error("notimplemented", 2)
                         --FIXME lookup Volume and position in the table here

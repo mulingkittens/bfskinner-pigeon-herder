@@ -6,7 +6,7 @@
 --This details the level map format
 
    A map is a simple ASCII grid, layed out as follows
-
+git stash
    ^-------------
    |             
    |             
@@ -37,12 +37,13 @@ local function parse_map(map_s)
     local grid = {}
     nonempty = false
     map_s:gsub('(.-)\r?\n', function(line)
-        if nonempty or line:find("[^%S]") then
+        if nonempty or line:find("[^%S]?") then
             nonempty = true
             lines[#lines + 1] = line
         end
     end)
     for i, line in ipairs(lines) do
+        print ("Processing line ", i, line)
         local t = {}
         grid[i] = t
         for char in line:gmatch("(.)") do
@@ -73,14 +74,24 @@ local function construct_level(level_cfg, map_grid)
     local default_constructors = Game.Objects.default_constructors
     level_cfg.constructors = level_cfg.constructors or default_constructors
     local level = {}
-    for x, row in ipairs(map_grid) do
-        level[x] = {}
-        for y, char in ipairs(row) do
+    local activeInstances = {}
+    for y, row in ipairs(map_grid) do
+        level[y] = {}
+        for x, char in ipairs(row) do          
+            local ins = nil
             if level_cfg.constructors[char] then
-                level[x][y] = level_cfg.constructors[char](x, y, default_constructors)
+                ins = level_cfg.constructors[char](x, y, default_constructors)
+            else
+                ins = default_constructors[char](x, y)
+            end
+            level[y][x] = ins
+            
+            if ins then
+                activeInstances[#activeInstances+1] = ins  
             end
         end
     end
+    Game.Objects.activeInstances = activeInstances
     return level
 end
 

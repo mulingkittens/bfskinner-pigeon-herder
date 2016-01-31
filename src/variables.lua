@@ -9,6 +9,9 @@ pigeonFeedRadiusDisplayTime = 0.2
 
 pigeonSpeed = 50
 
+pigeonActionTime = 1
+pigeonActionVariance = 0.5
+
 pigeonFoodMaximum = 100
 pigeonFoodPerFeed = 10
 pigeonFoodDecrement = 0.1
@@ -20,5 +23,5 @@ pigeonInfluenceLowerThreshold = 25
 pigeonInfluenceDecrement = 0.1
 
 -- Audio junk
-maxAudioQueueTime = 0.25 --seconds
+maxAudioQueueTime = math.inf
 maxAudioQueueEvents = 4

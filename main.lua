@@ -1,5 +1,5 @@
 require("src/variables")
-
+ParticleFactory = require("src/particles")
 Menu = {
 
     main = {

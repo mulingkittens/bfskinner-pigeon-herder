@@ -1,27 +1,38 @@
 SpriteManager = require("src/sprite_loader/sprite_manager")
 
+spriteX = 128
+spriteY = 128
+scalex = 1
+scaleY = 1
+
 return function()
-    local parent = SpriteManager("assets/basic_ground_tiles.png")
+    --local parent = SpriteManager("assets/basic_ground_tiles.png")
+    local parent = SpriteManager("assets/sprites.png")
     local obj = setmetatable({
         entities = {},
         quadifySprites = function(self)
             local sheetWidth = self.spriteSheet:getWidth()
             local sheetHeight = self.spriteSheet:getHeight()
-            self.sprites["grass"] = love.graphics.newQuad(0, 0, 128, 128, sheetWidth, sheetHeight)
+            --[[--self.sprites["grass"] = love.graphics.newQuad(0, 0, 128, 128, sheetWidth, sheetHeight)
             self.sprites["rocks"] = love.graphics.newQuad(128*2, 0, 128, 128, sheetWidth, sheetHeight)
             self.sprites["pen"] = love.graphics.newQuad(128*3, 0, 128, 128, sheetWidth, sheetHeight)
             self.sprites["wall"] = love.graphics.newQuad(128*3, 128*3, 128, 128, sheetWidth, sheetHeight) 
-            self.sprites["goal"] = love.graphics.newQuad(128*3, 128*1, 128, 128, sheetWidth, sheetHeight) 
+            self.sprites["goal"] = love.graphics.newQuad(128*3, 128*1, 128, 128, sheetWidth, sheetHeight) --]]--
+            self.sprites["grass"] = love.graphics.newQuad(0, 0, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["rocks"] = love.graphics.newQuad(0, 128, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["pen"] = love.graphics.newQuad(0, 128, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["wall"] = love.graphics.newQuad(128, 0, spriteX, spriteY, sheetWidth, sheetHeight)
+            self.sprites["goal"] = love.graphics.newQuad(128, 128, spriteX, spriteY, sheetWidth, sheetHeight)
         end,
         
         batchSprites = function(self)
             local sheetWidth = self.spriteSheet:getWidth()
             local sheetHeight = self.spriteSheet:getHeight()
-            local spriteBatch = love.graphics.newSpriteBatch(self.spriteSheet, 128 * 128)
+            local spriteBatch = love.graphics.newSpriteBatch(self.spriteSheet, spriteX * spriteY)
             for x, row in pairs(self.entities) do
                 for y, entity in pairs(row) do
                     if type(x) == 'number' and type(y) == 'number' then
-                        spriteBatch:add(entity:quad(), (x-1)*128, (y-1)*128)
+                        spriteBatch:add(entity:quad(), (x-1)*spriteX*scalex, (y-1)*spriteY*scaleY)
                     end
                 end
             end

@@ -7,6 +7,15 @@ local state = {
     dead = 2
 }
 
+
+function MaybeCoo()
+    if love.math.random(1, 100) == 50 then
+        local source = love.audio.newSource("assets/audio/coo.wav")
+        source:setVolume(math.random())
+        GetAudioManager():play(source)
+    end
+end
+
 local function create_move_action(dx, dy)
     return function(self, dt)
         new_x = self.x + dx * pigeonSpeed * dt
@@ -186,6 +195,7 @@ return function(x, y)
             GetAudioManager():registerEvents(self, {
                 {"peck.wav", "peck", "play",},
                 {"flap.wav", "flap", "play",},
+                {"coo.wav", "coo", "play",},
             })
         end,
         

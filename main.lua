@@ -233,6 +233,7 @@ Menu = {
                 if not pigeon:isAlive() then
                     table.remove(Game.Pigeons, i)
                     
+                    GetAudioManager():sendEvent(pigeon, "coo")
                     local particleSystems = Game.ParticleSystems
                     particleSystems[#particleSystems + 1] = ParticleFactory(pigeon.x, pigeon.y)
                     ParticleFactory(pigeon.x, pigeon.y)
@@ -558,6 +559,7 @@ function love.update(dt)
     if Game.LevelState.ambientAudio then
         am:start(Game.LevelState.ambientAudio)
     end
+    MaybeCoo()
 end
 
 function love.draw(dt)

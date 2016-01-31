@@ -98,8 +98,6 @@ end
 
 return function(level_name)
     local level_cfg = load_level_file(level_name)
-    print("89", success, level_cfg)
-    print("WHAT", level_cfg)
     for k, v in pairs(level_cfg) do print(k, v) end
     local map_grid = parse_map(level_cfg.map)
     return construct_level(level_cfg, map_grid)

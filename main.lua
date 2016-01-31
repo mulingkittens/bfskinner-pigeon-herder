@@ -52,7 +52,7 @@ Menu = {
         
         draw = function(dt)
             
-            --draw
+            love.graphics.draw(Game.Sprites.Menu.howtoplay)
             
         end,
         
@@ -82,7 +82,37 @@ Menu = {
         
         draw = function(dt)
             
-            --draw
+            love.graphics.draw(Game.Sprites.Menu.gameover)
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            -- mouse pressed
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            if key == 'space' then
+               Game.Menu = Menu.main
+            end
+        
+        end
+        
+    },
+    
+    win = {
+        
+        update = function(dt)
+            
+           -- update
+           
+        end,
+        
+        draw = function(dt)
+            
+            love.graphics.draw(Game.Sprites.Menu.youwin)
             
         end,
         
@@ -126,6 +156,38 @@ Menu = {
         
             if key == 'space' then
                Game.Menu = Menu.main
+            end
+        
+        end
+        
+    },
+    
+    interstitial = {
+        
+        update = function(dt)
+            
+           -- update
+           
+        end,
+        
+        draw = function(dt)
+            
+            love.graphics.draw(Game.Sprites.Menu.interstitial)
+            
+        end,
+        
+        mousepressed = function(x, y, button, istouch)
+        
+            -- mouse pressed
+        
+        end,
+    
+        keypressed = function(key, isrepeat)
+        
+            if key == 'space' then
+                 
+                Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
+                Game.Menu = Menu.play
             end
         
         end
@@ -264,14 +326,14 @@ Menu = {
                 love.event.quit()
             elseif key == 'f4' then
                 if Game.CurrentLevel + 1 > #Game.PlayableLevels then
-                    Game.CurrentLevel = (Game.CurrentLevel - #Game.PlayableLevels) + 1
+                    Game.Menu = Menu.win
+                    Game:reset()
                 else
                     Game.CurrentLevel = Game.CurrentLevel + 1
+                    Game.Menu = Menu.interstitial
+                    Game:reset()
                 end
-                Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
-                Game:reset()
-
-                love.load(Game.configArgs or {})
+                
             elseif key == 'f3' then
                 if Game.Debug.draw_actions  ~= nil then
                     Game.Debug = {}
@@ -331,7 +393,12 @@ Game = {
     },
     Menu = {
         main = love.graphics.newImage('assets/mainmenu.png'),
-        credits = love.graphics.newImage('assets/credits.png')
+        credits = love.graphics.newImage('assets/credits.png'),
+        howtoplay = love.graphics.newImage('assets/howtoplay.png'),
+        gameover = love.graphics.newImage('assets/gameover.png'),
+        youwin = love.graphics.newImage('assets/youwin.png'),
+        interstitial = love.graphics.newImage('assets/interstitial.png')
+        
     },
     FeedRadius = love.graphics.newImage('assets/feed_radius.png'),
     Pen = love.graphics.newImage('assets/pen.png'),
@@ -367,7 +434,6 @@ Game = {
         }
         self.Level:reset()
         self.Objects:reset()
-        self.LevelGrid = LoadLevel(self.PlayableLevels[self.CurrentLevel])
     end
     
 }
@@ -392,7 +458,6 @@ local level = LevelManager()
 
 Game.Level = level
 
--- TODO(Gordon): Integrate objects with the level loader
 Game.Objects = {
     reset = function(self)
         self.activeInstances = {}

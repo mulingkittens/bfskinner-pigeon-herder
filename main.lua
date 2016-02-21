@@ -218,11 +218,6 @@ Menu = {
                 -- Capture pigeons from goal objects
                 if tostring(object) == "goal" then
                     object:capture_pigeon()
-                    if object:win_condition_triggered() then
-                        Game.CurrentLevel = Game.CurrentLevel + 1
-                        Game.Menu = Menu.interstitial
-                        Game:reset()
-                    end
                 end
             end
             
@@ -260,6 +255,12 @@ Menu = {
             if Game.LevelState.remainingPigeons < (Game.LevelState.requiredPigeons - Game.LevelState.capturedPigeons) then
                 Game:reset()
                 Game.Menu = Menu.gameover
+            end
+            
+            if Game.LevelState.capturedPigeons >= Game.LevelState.requiredPigeons then
+                Game.CurrentLevel = Game.CurrentLevel + 1
+                Game.Menu = Menu.interstitial
+                Game:reset()
             end
            
         end,
@@ -349,6 +350,9 @@ Menu = {
         end,
     
         keypressed = function(key, isrepeat)
+            if key == 'f5' then
+               Game.LevelState.capturedPigeons = Game.LevelState.capturedPigeons + 1
+            end
             if key == 'escape' or key == 'q' then
                 love.event.quit()
             elseif key == 'f4' then

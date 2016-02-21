@@ -44,8 +44,6 @@ return function(targetPigeons, LevelEntites)
 
                     if goalRect:intersects(pigeonRect) then
 
-                        Game.LevelState.capturedPigeons = Game.LevelState.capturedPigeons + 1
-
                         -- Remove pigeon from the game
                         table.remove(Game.Pigeons, i)
 
@@ -60,8 +58,6 @@ return function(targetPigeons, LevelEntites)
             end,
 
             win_condition_triggered = function(self)
-
-                print("Check Win Condition: ", self.capturedPigeons, " / ", self.targetPigeons)
 
                 return (self.capturedPigeons >= self.targetPigeons)
 

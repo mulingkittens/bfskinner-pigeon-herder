@@ -186,7 +186,6 @@ Menu = {
         keypressed = function(key, isrepeat)
         
             if key == 'space' then
-                 
                 Game:reset()
                 Game.LevelGrid = LoadLevel(Game.PlayableLevels[Game.CurrentLevel])
                 Game.Menu = Menu.play
@@ -258,9 +257,14 @@ Menu = {
             end
             
             if Game.LevelState.capturedPigeons >= Game.LevelState.requiredPigeons then
-                Game.CurrentLevel = Game.CurrentLevel + 1
-                Game.Menu = Menu.interstitial
-                Game:reset()
+                if Game.CurrentLevel + 1 > #Game.PlayableLevels then
+                    Game.Menu = Menu.win
+                    Game:reset()
+                else
+                    Game.CurrentLevel = Game.CurrentLevel + 1
+                    Game.Menu = Menu.interstitial
+                    Game:reset()
+                end
             end
            
         end,
